@@ -15,11 +15,11 @@
 
 ## 샘플
 
-| # | 샘플 | 연결 방식 | 공개 도메인 | 상태 |
-|---|---|---|---|---|
-| 01 | [`sample-project/01-cli-gateway`](sample-project/01-cli-gateway/) | CLI + 로컬 게이트웨이 | **불필요** | ✅ 완료 |
-| 02 | [`sample-project/02-api-webhook`](sample-project/02-api-webhook/) | REST API + 호스티드 웹훅 | 필요 | ✅ 완료 |
-| 03 | [`sample-project/03-cli-knowledge-graph`](sample-project/03-cli-knowledge-graph/) | 01 + 상담지식 그래프 프리셋 조회 (AI 미사용) | **불필요** | ✅ 완료 |
+| # | 샘플 | 이런 때 쓰세요 | 연결 방식 | 공개 도메인 | 상태 |
+|---|---|---|---|---|---|
+| 01 | [`sample-project/01-cli-gateway`](sample-project/01-cli-gateway/) | CLI 로 **기본 채팅상담 화면**을 빠르게 만들고 싶을 때 — 노트북·사내망에서 도메인 없이 바로 검증, 사람이 답하는 상담 툴의 출발점 | CLI + 로컬 게이트웨이 | **불필요** | ✅ 완료 |
+| 02 | [`sample-project/02-api-webhook`](sample-project/02-api-webhook/) | 이미 운영 중인 **서버·백엔드에 상담을 붙일 때** — REST 로 조회·발신, 웹훅으로 영속 전달·재시도. 운영 전환·다중 인스턴스의 기준 구현 | REST API + 호스티드 웹훅 | 필요 | ✅ 완료 |
+| 03 | [`sample-project/03-cli-knowledge-graph`](sample-project/03-cli-knowledge-graph/) | **과거 상담을 분석하거나 자동 상담의 근거 데이터**를 만들고 싶을 때 — 고객→문의→응답 그래프를 Cypher 프리셋으로 조회, 온톨로지 설계 참고 | 01 + 상담지식 그래프 프리셋 조회 (AI 미사용) | **불필요** | ✅ 완료 |
 
 [![01-cli-gateway 상담 화면](sample-project/01-cli-gateway/docs/screenshot.png)](sample-project/01-cli-gateway/)
 
@@ -28,10 +28,11 @@
 02 는 TalkBridge 가 **내 공개 엔드포인트로 들어오는** 방식이라 그 인프라가 필요한 대신,
 전달이 영속되고 재시도가 넉넉합니다.
 
-03 의 그래프 기능은 **상담 내역으로 온톨로지를 구축할 때 참고할 수 있는 연구 샘플**입니다.
-CLI 가 파트너사의 온톨로지를 위해 공식 제공하는 기능이 아니라, CLI 가 설치된 곳에서 **온디바이스로 가볍게**
-로컬에서 돌려 볼 수 있는 참고 구현입니다. 여기서 스키마와 조회 패턴을 확인한 뒤, 규모에 맞는 그래프 DB 를
-따로 채택해 적용하는 것을 권합니다.
+03 은 **톡브릿지 CLI 로 상담 Agent 기능을 확장하고자 할 때** 활용할 수 있는 샘플입니다 — 톡브릿지가 부가 기능인
+**상담 분석 Agent** 로 어떻게 확장될 수 있는지를 보여주는 데모성 구현입니다. 그래프 기능은 상담 내역으로 온톨로지를 구축할 때
+참고할 수 있는 연구 샘플이며, CLI 가 파트너사의 온톨로지를 위해 공식 제공하는 기능은 아닙니다. CLI 가 설치된 곳에서
+**온디바이스로 가볍게 로컬 실험**을 할 수 있고, 실 운영에서는 여기서 확인한 스키마·조회 패턴을 바탕으로 규모에 맞는 그래프 DB 를
+별도 구축·운영하는 것을 권장합니다.
 
 [![03 상담지식 온톨로지 그래프](sample-project/03-cli-knowledge-graph/docs/screenshot-graph.png)](sample-project/03-cli-knowledge-graph/#talkbridge-cli--그래프-확장편)
 
