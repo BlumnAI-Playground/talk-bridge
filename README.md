@@ -6,7 +6,7 @@
 파트너가 고객사 구축에 들어가는 시간을 줄이고, 코드 가이드로 삼을 수 있도록
 공개 매뉴얼을 실측으로 검증해 정리하고, 연결 방식별로 동작하는 샘플을 제공합니다.
 
-> **소개 페이지**: <https://blumnai-playground.github.io/talk-bridge/> — TalkBridge CLI · MCP · API 한눈에 (이 저장소의  를 태그 기준으로 GitHub Pages 에 배포)
+> **소개 페이지**: <https://blumnai-playground.github.io/talk-bridge/> — TalkBridge CLI · MCP · API 한눈에 (이 저장소의 `site/` 를 `v*` 태그 기준으로 GitHub Pages 에 배포)
 
 ## 구성
 
@@ -14,6 +14,7 @@
 |---|---|
 | [`docs/`](docs/) | 공개 매뉴얼 요약 — 도메인 모델, API·CLI 스펙, 요금, 온보딩 |
 | [`sample-project/`](sample-project/) | 연결 방식별 동작하는 샘플 (멀티 프로젝트) |
+| [`site/`](site/) | 소개 페이지 (GitHub Pages) — `v*` 태그 푸시로 배포 |
 
 ## 샘플
 
