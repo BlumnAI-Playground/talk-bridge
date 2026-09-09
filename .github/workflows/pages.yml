@@ -1,0 +1,47 @@
+name: Deploy site to GitHub Pages
+
+# 태그 기반 배포 — `v*` 태그를 푸시하면 site/ 가 그 버전으로 게시된다.
+# 수동 실행(workflow_dispatch)도 가능. main 푸시만으로는 배포되지 않는다.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stamp version into the page
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          if [ "${GITHUB_REF_TYPE}" != "tag" ]; then VERSION="$(git describe --tags --always 2>/dev/null || echo dev)"; fi
+          DATE="$(date -u +%Y-%m-%d)"
+          sed -i "s|__VERSION__|${VERSION}|g; s|__BUILD_DATE__|${DATE}|g" site/index.html
+          echo "version=${VERSION} date=${DATE}"
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
