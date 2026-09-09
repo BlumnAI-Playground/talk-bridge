@@ -1,0 +1,26 @@
+{
+  "name": "talkbridge-cli-knowledge-graph-sample",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TalkBridge CLI x Gateway 채팅상담 + 상담지식 그래프(온톨로지) 탐색 샘플 — 의존성 0, Node 내장 http + 바닐라 JS",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "gateway:setup": "node scripts/gateway.mjs setup",
+    "gateway:start": "node scripts/gateway.mjs start",
+    "gateway:stop": "node scripts/gateway.mjs stop",
+    "gateway:status": "node scripts/gateway.mjs status",
+    "knowledge:status": "node scripts/knowledge.mjs status",
+    "knowledge:install": "node scripts/knowledge.mjs install",
+    "knowledge:build": "node scripts/knowledge.mjs build",
+    "knowledge:view": "node scripts/knowledge.mjs view",
+    "demo:seed": "node scripts/seed.mjs seed",
+    "demo:unseed": "node scripts/seed.mjs unseed",
+    "demo:count": "node scripts/seed.mjs count",
+    "doctor": "node scripts/doctor.mjs",
+    "screenshot": "node scripts/screenshot.mjs"
+  }
+}

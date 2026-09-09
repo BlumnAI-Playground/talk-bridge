@@ -1,0 +1,15 @@
+{
+  "name": "talkbridge-api-webhook-sample",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TalkBridge REST API x 호스티드 웹훅 채팅상담 샘플 — 의존성 0, Node 내장 http/fetch + 바닐라 JS",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "doctor": "node scripts/doctor.mjs",
+    "screenshot": "node scripts/screenshot.mjs"
+  }
+}

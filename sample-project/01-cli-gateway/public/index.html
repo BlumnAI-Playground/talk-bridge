@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TalkBridge 채팅상담 샘플</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brandmark">
+      <span class="dot" id="conn-dot" title="실시간 연결"></span>
+      <strong>TalkBridge</strong> <span class="muted">채팅상담 샘플</span>
+    </div>
+    <div class="meta" id="meta">불러오는 중…</div>
+  </header>
+
+  <main class="layout">
+    <!-- 좌: 상담방 목록 -->
+    <aside class="panel rooms">
+      <div class="panel-head">
+        <h2>상담방</h2>
+        <button id="btn-refresh" class="ghost" title="CLI rooms 다시 조회">새로고침</button>
+      </div>
+      <ul id="room-list" class="room-list"></ul>
+      <p class="hint" id="rooms-hint"></p>
+    </aside>
+
+    <!-- 우: 대화 -->
+    <section class="panel thread">
+      <div class="panel-head">
+        <h2 id="thread-title">상담방을 선택하세요</h2>
+        <div class="actions">
+          <button id="btn-end" class="ghost danger" disabled title="end-with-bot">상담 종료</button>
+          <button id="btn-block" class="ghost danger" disabled title="block">차단</button>
+        </div>
+      </div>
+
+      <div id="messages" class="messages">
+        <div class="empty">
+          <p>왼쪽에서 상담방을 고르면 대화가 표시됩니다.</p>
+          <p class="muted">게이트웨이가 떠 있으면 새 메시지가 실시간으로 들어옵니다.</p>
+        </div>
+      </div>
+
+      <form id="composer" class="composer">
+        <textarea id="input" rows="2" placeholder="답장을 입력하세요 (Enter 전송 · Shift+Enter 줄바꿈)" disabled></textarea>
+        <button id="btn-send" type="submit" disabled>전송</button>
+      </form>
+      <p class="hint" id="send-hint">활성 세션에만 발신할 수 있습니다. 발신은 상담 건수를 소진합니다.</p>
+    </section>
+
+    <!-- 이벤트 로그 -->
+    <aside class="panel log">
+      <div class="panel-head"><h2>수신 이벤트</h2></div>
+      <ul id="event-log" class="event-log"></ul>
+    </aside>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

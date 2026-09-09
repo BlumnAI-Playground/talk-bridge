@@ -1,0 +1,19 @@
+{
+  "name": "talkbridge-cli-consult-sample",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TalkBridge CLI x Gateway 채팅상담 샘플 — 의존성 0, Node 내장 http + 바닐라 JS",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "gateway:setup": "node scripts/gateway.mjs setup",
+    "gateway:start": "node scripts/gateway.mjs start",
+    "gateway:stop": "node scripts/gateway.mjs stop",
+    "gateway:status": "node scripts/gateway.mjs status",
+    "doctor": "node scripts/doctor.mjs",
+    "screenshot": "node scripts/screenshot.mjs"
+  }
+}

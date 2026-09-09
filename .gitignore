@@ -1,0 +1,18 @@
+# IDE
+.idea/
+.vscode/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# 로컬 환경설정 — 시크릿 포함
+.env
+.env.local
+
+# 로그
+*.log
+
+# 하네스 활동 로그 — 파트너에게 공개할 필요 없는 점검 기록이 섞일 수 있어 제외
+harness/logs/*
+!harness/logs/.gitkeep

@@ -1,0 +1,12 @@
+{
+  "$schema": "kakashi-harness",
+  "$schemaVersion": "1.2.0",
+  "name": "블룸 정원의 하네스",
+  "description": "카카오 상담톡 연동 샘플 프로젝트(CLI 게이트웨이, API 웹훅)의 코드 리뷰 워크플로우 관리",
+  "version": "1.2.2",
+  "agents": ["tamer", "webhook-security-guard", "sample-portability-reviewer", "manual-digest-verifier", "improvement-collector"],
+  "engine": ["full-review", "targeted-review"],
+  "plugins": { "harness-kakashi": { "skills": ["harness-creator", "harness-chakra"] } },
+  "created": "2026-09-09",
+  "lastUpdated": "2026-09-09"
+}

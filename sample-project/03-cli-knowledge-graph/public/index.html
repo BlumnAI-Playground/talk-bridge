@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TalkBridge 채팅상담 샘플 · 지식 그래프</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brandmark">
+      <span class="dot" id="conn-dot" title="실시간 연결"></span>
+      <strong>TalkBridge</strong> <span class="muted">채팅상담 샘플 · 상담지식 그래프</span>
+    </div>
+    <div class="meta" id="meta">불러오는 중…</div>
+  </header>
+
+  <main class="layout">
+    <!-- 좌: 상담방 목록 -->
+    <aside class="panel rooms">
+      <div class="panel-head">
+        <h2>상담방</h2>
+        <button id="btn-refresh" class="ghost" title="CLI rooms 다시 조회">새로고침</button>
+      </div>
+      <ul id="room-list" class="room-list"></ul>
+      <p class="hint" id="rooms-hint"></p>
+    </aside>
+
+    <!-- 중: 대화 -->
+    <section class="panel thread">
+      <div class="panel-head">
+        <h2 id="thread-title">상담방을 선택하세요</h2>
+        <div class="actions">
+          <button id="btn-graph-user" class="ghost" disabled title="이 고객의 문의·응답 타임라인 (그래프 프리셋)">고객 타임라인</button>
+          <button id="btn-end" class="ghost danger" disabled title="end-with-bot">상담 종료</button>
+          <button id="btn-block" class="ghost danger" disabled title="block">차단</button>
+        </div>
+      </div>
+
+      <div id="messages" class="messages">
+        <div class="empty">
+          <p>왼쪽에서 상담방을 고르면 대화가 표시됩니다.</p>
+          <p class="muted">게이트웨이가 떠 있으면 새 메시지가 실시간으로 들어옵니다.</p>
+        </div>
+      </div>
+
+      <form id="composer" class="composer">
+        <textarea id="input" rows="2" placeholder="답장을 입력하세요 (Enter 전송 · Shift+Enter 줄바꿈)" disabled></textarea>
+        <button id="btn-send" type="submit" disabled>전송</button>
+      </form>
+      <p class="hint" id="send-hint">활성 세션에만 발신할 수 있습니다. 발신은 상담 건수를 소진합니다.</p>
+    </section>
+
+    <!-- 우: 지식 그래프(위) + 수신 이벤트(아래) -->
+    <div class="side">
+      <aside class="panel knowledge">
+        <div class="panel-head">
+          <h2>상담지식 그래프 <span class="muted" id="kg-snap"></span></h2>
+          <div class="actions">
+            <button id="btn-kg-refresh" class="ghost" title="프리셋 전부를 다시 조회합니다 (게이트웨이는 그대로)">새로고침</button>
+          </div>
+        </div>
+
+        <div class="kg-form">
+          <div class="kg-row">
+            <select id="kg-preset" title="미리 만들어진 Cypher 조회"></select>
+          </div>
+          <div class="kg-row" id="kg-param-row" hidden>
+            <input id="kg-param" type="text" autocomplete="off">
+            <button id="btn-kg-run" type="button">조회</button>
+          </div>
+          <details class="kg-advanced">
+            <summary>Cypher 직접 실행 (읽기전용)</summary>
+            <textarea id="kg-cypher" rows="3" placeholder="MATCH (c:Customer)-[:ASKED]->(i:Inquiry) RETURN c.id, i.text LIMIT 10"></textarea>
+            <div class="kg-row"><button id="btn-kg-cypher" type="button">실행</button><span class="muted small">RETURN 한 컬럼이 그대로 표가 됩니다 (--json)</span></div>
+          </details>
+        </div>
+
+        <div id="kg-result" class="kg-result">
+          <div class="empty small">
+            <p>미리 만들어진 Cypher 로 과거 상담 그래프를 탐색합니다.</p>
+            <p class="muted" id="kg-hint">준비 상태를 확인하는 중…</p>
+          </div>
+        </div>
+      </aside>
+
+      <aside class="panel log">
+        <div class="panel-head"><h2>수신 이벤트</h2></div>
+        <ul id="event-log" class="event-log"></ul>
+      </aside>
+    </div>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

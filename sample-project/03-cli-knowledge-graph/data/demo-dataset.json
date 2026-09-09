@@ -1,0 +1,193 @@
+{
+  "$comment": "데모 데이터셋 — 톡브릿지 상담센터에 파트너 개발자들이 CLI·API 연동을 문의하는 상황. 모든 id 는 'demo' 로 시작해 실데이터와 구분되며 npm run demo:unseed 로 통째로 제거된다. mentions 는 [엔티티명, 신뢰도] 이며, 그래프 스키마상 MENTIONS 는 Inquiry 에서만 나가므로 response 의 mentions 는 직전 inquiry 에 붙는다.",
+  "brand": "demo-talkbridge-support",
+  "customers": [
+    { "id": "demo_partner_kim", "name": "김도현 (A커머스 백엔드)", "memo": "CLI 게이트웨이로 PoC 중. Windows 개발 환경" },
+    { "id": "demo_partner_lee", "name": "이서연 (B쇼핑 플랫폼팀)", "memo": "REST + 호스티드 웹훅 운영 전환 검토" },
+    { "id": "demo_partner_park", "name": "박민준 (C에이전시)", "memo": "고객사 3곳 동시 구축. 브랜드별 키 관리 이슈" },
+    { "id": "demo_partner_choi", "name": "최지우 (D헬스케어 CS)", "memo": "Slack 싱크로 상담원 운영" },
+    { "id": "demo_partner_jung", "name": "정하늘 (E교육 서비스)", "memo": "AI 상담봇 붙이는 중" },
+    { "id": "demo_partner_kang", "name": "강태오 (F물류 SI)", "memo": "사내망, 공인 도메인 불가" },
+    { "id": "demo_partner_yoon", "name": "윤채원 (G뷰티 브랜드)", "memo": "비개발자. MCP 로 시작" },
+    { "id": "demo_partner_lim", "name": "임준서 (H핀테크 보안팀)", "memo": "서명·키 관리 심사 진행" },
+    { "id": "demo_partner_han", "name": "한소율 (I여행사 운영)", "memo": "요금제·과금 문의 많음" },
+    { "id": "demo_partner_oh", "name": "오시우 (J스타트업 1인 개발)", "memo": "Free 플랜으로 검증 중" }
+  ],
+  "entities": [
+    { "name": "CLI", "kind": "제품" },
+    { "name": "REST API", "kind": "제품" },
+    { "name": "CLI 게이트웨이", "kind": "제품" },
+    { "name": "호스티드 게이트웨이", "kind": "제품" },
+    { "name": "톡브릿지 센터", "kind": "제품" },
+    { "name": "Slack 싱크", "kind": "제품" },
+    { "name": "Discord 싱크", "kind": "제품" },
+    { "name": "MCP", "kind": "제품" },
+    { "name": "서명 검증", "kind": "개념" },
+    { "name": "raw body", "kind": "개념" },
+    { "name": "멱등", "kind": "개념" },
+    { "name": "재시도", "kind": "개념" },
+    { "name": "활성 세션", "kind": "개념" },
+    { "name": "스코프", "kind": "개념" },
+    { "name": "agent echo", "kind": "개념" },
+    { "name": "과금", "kind": "개념" },
+    { "name": "리치 메시지", "kind": "개념" },
+    { "name": "터널", "kind": "개념" },
+    { "name": "채널 소유권", "kind": "개념" },
+    { "name": "send", "kind": "명령" },
+    { "name": "setup", "kind": "명령" },
+    { "name": "schedule", "kind": "명령" },
+    { "name": "delete", "kind": "명령" },
+    { "name": "upload", "kind": "명령" },
+    { "name": "history", "kind": "명령" },
+    { "name": "whoami", "kind": "명령" },
+    { "name": "401", "kind": "오류" },
+    { "name": "-509", "kind": "오류" },
+    { "name": "NO_BRAND_SCOPE", "kind": "오류" },
+    { "name": "FORBIDDEN", "kind": "오류" },
+    { "name": "Windows", "kind": "환경" },
+    { "name": "Node 18", "kind": "환경" },
+    { "name": "Tailscale", "kind": "환경" },
+    { "name": "dev 환경", "kind": "환경" },
+    { "name": "Free 플랜", "kind": "요금" },
+    { "name": "Pro 100", "kind": "요금" }
+  ],
+  "conversations": [
+    {
+      "id": "demo:c01", "customer": "demo_partner_kim",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-08-20 10:12:00", "text": "CLI 게이트웨이로 웹훅을 받는데 서명 검증이 전부 401 로 떨어집니다. 시크릿은 분명히 같은데요.", "mentions": [["CLI 게이트웨이", 0.95], ["서명 검증", 0.98], ["401", 0.97]] },
+        { "type": "response", "ts": "2026-08-20 10:25:00", "byAgent": true, "text": "본문을 JSON.parse 한 뒤 다시 stringify 해서 검증하고 계신 것 같습니다. 서명은 raw body 바이트 기준이라 키 순서·공백이 바뀌면 깨집니다. /webhook 라우트에서 Buffer 를 그대로 넘겨 주세요.", "mentions": [["raw body", 0.97], ["서명 검증", 0.9]] },
+        { "type": "inquiry", "ts": "2026-08-20 10:41:00", "text": "raw 로 바꾸니 통과합니다. 그런데 같은 이벤트가 두세 번 오는 건 정상인가요?", "mentions": [["재시도", 0.9], ["멱등", 0.85]] },
+        { "type": "response", "ts": "2026-08-20 10:48:00", "byAgent": true, "text": "네, at-least-once 라 재시도가 옵니다. X-Bridge-Delivery-Id 로 1차, (brand, seq) 로 2차 멱등 처리하세요. 그리고 정상 처리했으면 반드시 2xx 를 돌려줘야 재시도가 멈춥니다.", "mentions": [["멱등", 0.98], ["재시도", 0.9]] }
+      ]
+    },
+    {
+      "id": "demo:c02", "customer": "demo_partner_kim",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-08-22 15:03:00", "text": "Windows 에서 Node 로 talkbridge-dev 를 spawn 하면 EINVAL 이 나고, shell:true 로 하면 메시지의 & 문자에서 깨집니다.", "mentions": [["Windows", 0.98], ["CLI", 0.9], ["Node 18", 0.7]] },
+        { "type": "response", "ts": "2026-08-22 15:30:00", "byAgent": true, "text": "npm 이 만든 .cmd shim 을 Node 18.20+ 가 shell 없이 실행하지 못하게 막은 것(CVE-2024-27980)입니다. shim 대신 런처 JS 를 process.execPath 로 직접 실행하고 인자를 배열로 넘기면 어떤 문자가 와도 안전합니다. 샘플 01 의 server/cli.js 를 참고하세요.", "mentions": [["Windows", 0.9], ["CLI", 0.8]] }
+      ]
+    },
+    {
+      "id": "demo:c03", "customer": "demo_partner_lee",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-08-23 09:15:00", "text": "CLI 게이트웨이로 검증을 마쳤고 운영은 호스티드 웹훅으로 가려 합니다. 수신 코드를 얼마나 고쳐야 하나요?", "mentions": [["호스티드 게이트웨이", 0.95], ["CLI 게이트웨이", 0.8]] },
+        { "type": "response", "ts": "2026-08-23 09:40:00", "byAgent": true, "text": "서명 스킴과 페이로드가 양쪽 동일해서 signature.js 는 무수정, webhook.js 는 본문 조회 부분(CLI → REST)만 바꾸면 됩니다. 대신 공인 HTTPS 도메인이 필요하고, 센터의 상담 받을 곳 연결에 URL 을 등록해야 합니다.", "mentions": [["호스티드 게이트웨이", 0.9], ["REST API", 0.85], ["서명 검증", 0.7]] },
+        { "type": "inquiry", "ts": "2026-08-23 11:02:00", "text": "호스티드 쪽은 재시도가 어떻게 되나요? 서버가 잠깐 죽으면 유실되나요?", "mentions": [["재시도", 0.95], ["호스티드 게이트웨이", 0.8]] },
+        { "type": "response", "ts": "2026-08-23 11:10:00", "byAgent": true, "text": "1s→5s→30s→2m→10m 총 5회이고 전달 원장이 영속됩니다. 게이트웨이가 재기동해도 미완료 전달을 재개하므로 짧은 다운은 유실되지 않습니다. 4xx 도 재시도 대상이니 처리했으면 200 을 주세요.", "mentions": [["재시도", 0.95]] }
+      ]
+    },
+    {
+      "id": "demo:c04", "customer": "demo_partner_park",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-08-25 13:20:00", "text": "고객사 브랜드 3개를 한 키로 관리할 수 있나요? 두 번째 브랜드로 send 하면 NO_BRAND_SCOPE 가 납니다.", "mentions": [["NO_BRAND_SCOPE", 0.98], ["스코프", 0.9], ["send", 0.8]] },
+        { "type": "response", "ts": "2026-08-25 13:35:00", "byAgent": true, "text": "Agent API 키는 발급 시 특정 brandKey 에 묶입니다. 브랜드마다 키를 따로 발급해 쓰셔야 하고, 인증계 오류(NO_BRAND_SCOPE, FORBIDDEN)는 재시도해도 소용없으니 키 매핑을 먼저 확인하세요.", "mentions": [["스코프", 0.95], ["NO_BRAND_SCOPE", 0.9], ["FORBIDDEN", 0.8]] }
+      ]
+    },
+    {
+      "id": "demo:c05", "customer": "demo_partner_choi",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-08-26 16:45:00", "text": "Slack 싱크로 상담하는데 상담원이 슬래시 커맨드로 cs-close 를 치면 고객을 못 찾는다고 합니다.", "mentions": [["Slack 싱크", 0.98]] },
+        { "type": "response", "ts": "2026-08-26 17:00:00", "byAgent": true, "text": "Slack 은 슬래시 커맨드가 실행된 스레드를 알려주지 않아 고객을 특정할 수 없습니다. Slack 에서는 슬래시 없이 예약 키워드 cs-close 를 고객 상담 스레드 안에서 입력하세요. Discord 는 /cs-close 슬래시 커맨드가 맞습니다.", "mentions": [["Slack 싱크", 0.95], ["Discord 싱크", 0.7]] }
+      ]
+    },
+    {
+      "id": "demo:c06", "customer": "demo_partner_jung",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-08-27 10:05:00", "text": "웹훅에 LLM 을 붙여 자동응답을 만들었는데 봇이 자기 답장에 또 답장하면서 무한 루프가 돕니다.", "mentions": [["agent echo", 0.98], ["send", 0.6]] },
+        { "type": "response", "ts": "2026-08-27 10:12:00", "byAgent": true, "text": "발신에 성공하면 내 웹훅으로 kind: agent 이벤트가 되돌아옵니다(self-echo). 자동응답 로직에서 kind 가 agent 인 이벤트는 반드시 걸러 주세요. 응답 생성은 kind 가 message 일 때만 타야 합니다.", "mentions": [["agent echo", 0.98]] },
+        { "type": "inquiry", "ts": "2026-08-27 10:30:00", "text": "agent 이벤트가 한 번에 두 개씩 오는데(하나는 seq 가 없음) 어느 걸 기준으로 해야 하나요?", "mentions": [["agent echo", 0.9], ["호스티드 게이트웨이", 0.7]] },
+        { "type": "response", "ts": "2026-08-27 10:38:00", "byAgent": true, "text": "호스티드 게이트웨이는 발신 직후 seq 없는 접수 신호를 먼저 보내고, 저널에 기록되면 seq 있는 항목을 한 번 더 보냅니다. seq 없는 agent 는 저장하지 말고 신호로만 취급하세요.", "mentions": [["agent echo", 0.95]] }
+      ]
+    },
+    {
+      "id": "demo:c07", "customer": "demo_partner_kang",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-08-28 09:00:00", "text": "사내망이라 공인 도메인을 뚫을 수 없습니다. 이 환경에서도 상담 수신이 되나요?", "mentions": [["터널", 0.7], ["CLI 게이트웨이", 0.85]] },
+        { "type": "response", "ts": "2026-08-28 09:20:00", "byAgent": true, "text": "CLI 게이트웨이 방식을 쓰시면 됩니다. 데몬이 내 쪽에서 밖으로 나가 SSE 로 붙기 때문에 도메인·DNS·TLS·인바운드 방화벽이 전혀 필요 없습니다. 24/7 운영이면 그 서버에서 데몬을 돌리세요.", "mentions": [["CLI 게이트웨이", 0.95]] },
+        { "type": "inquiry", "ts": "2026-08-28 14:10:00", "text": "그래도 개발 노트북에서 호스티드 웹훅을 테스트해 보고 싶은데 방법이 있을까요?", "mentions": [["터널", 0.95], ["호스티드 게이트웨이", 0.8]] },
+        { "type": "response", "ts": "2026-08-28 14:25:00", "byAgent": true, "text": "Tailscale Funnel 이나 ngrok 같은 터널로 공인 HTTPS 주소를 얻을 수 있습니다. 사설 IP 는 SSRF 방어로 전달되지 않으니 꼭 터널 주소를 등록하세요. /webhook 경로만 노출하는 것을 권장합니다.", "mentions": [["Tailscale", 0.95], ["터널", 0.9]] }
+      ]
+    },
+    {
+      "id": "demo:c08", "customer": "demo_partner_yoon",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-08-29 11:30:00", "text": "개발자가 없는데 MCP 로 연결하면 뭘 할 수 있나요? 코딩 없이 상담 답장이 되나요?", "mentions": [["MCP", 0.98]] },
+        { "type": "response", "ts": "2026-08-29 11:45:00", "byAgent": true, "text": "커넥터 주소를 붙여넣고 구글 로그인만 하면 됩니다. 상담방 조회, 답장 발송, 상담 종료, 차단, 상담시간 설정까지 대화로 처리할 수 있고, 발신은 상담 건수를 소진한다는 점만 기억하세요.", "mentions": [["MCP", 0.95], ["과금", 0.6]] }
+      ]
+    },
+    {
+      "id": "demo:c09", "customer": "demo_partner_lim",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-09-01 10:00:00", "text": "보안 심사 중입니다. API 키(blumnb-)와 웹훅 시크릿(whsec_)의 관계와 회전 정책을 알려주세요.", "mentions": [["서명 검증", 0.8], ["스코프", 0.6]] },
+        { "type": "response", "ts": "2026-09-01 10:20:00", "byAgent": true, "text": "둘은 별개입니다. whsec 는 연결한 Agent 키에서 결정적으로 파생되어 센터에서 재확인할 수 있고, Agent 키를 재발급하면 whsec 도 바뀌므로 수신 서버 값을 함께 갱신해야 합니다. 서명 비교는 상수시간으로, 타임스탬프 편차는 거부하도록 구현하세요.", "mentions": [["서명 검증", 0.95]] },
+        { "type": "inquiry", "ts": "2026-09-01 10:45:00", "text": "타임스탬프 허용 오차는 몇 초가 적당한가요? 그리고 서명 실패는 401 인지 400 인지요.", "mentions": [["서명 검증", 0.85], ["401", 0.9]] },
+        { "type": "response", "ts": "2026-09-01 10:52:00", "byAgent": true, "text": "300초를 기본으로 권장합니다. 서명 실패는 401 로 응답하고, 재시도가 와도 계속 401 이 나는 것이 정상입니다.", "mentions": [["401", 0.95], ["서명 검증", 0.8]] }
+      ]
+    },
+    {
+      "id": "demo:c10", "customer": "demo_partner_han",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-09-02 14:00:00", "text": "과금 단위가 메시지 수인가요, 상담 건수인가요? 상담원이 5명이면 5배인가요?", "mentions": [["과금", 0.98]] },
+        { "type": "response", "ts": "2026-09-02 14:08:00", "byAgent": true, "text": "하루에 응대한 고객 1명이 1건입니다(KST 자정 경계). 메시지 수와 상담원 수는 무관하며, 조회·설정 API 는 비과금입니다. 소진되면 신규 상담이 중지되고 자동 상향은 없습니다.", "mentions": [["과금", 0.98]] },
+        { "type": "inquiry", "ts": "2026-09-02 14:30:00", "text": "Pro 100 에서 남은 건수는 다음 달로 이월되나요?", "mentions": [["Pro 100", 0.95], ["과금", 0.8]] },
+        { "type": "response", "ts": "2026-09-02 14:35:00", "byAgent": false, "text": "잔여 건수는 이월되지 않으며, 플랜 상향 시에만 합산됩니다. 자세한 요금 안내는 센터 요금 페이지를 참고해 주세요.", "mentions": [["Pro 100", 0.9], ["과금", 0.85]] }
+      ]
+    },
+    {
+      "id": "demo:c11", "customer": "demo_partner_oh",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-09-03 20:15:00", "text": "Free 플랜으로 테스트 중인데 send 가 -509 로 실패합니다. 건수는 남아 있어요.", "mentions": [["Free 플랜", 0.9], ["send", 0.9], ["-509", 0.98], ["활성 세션", 0.7]] },
+        { "type": "response", "ts": "2026-09-04 09:05:00", "byAgent": true, "text": "-509 는 카카오 쪽 발신 실패 코드로, 대개 세션이 종료·만료된 경우입니다. 상담톡은 진행 중인 활성 세션에만 발신할 수 있어서 선발신이 안 됩니다. 고객이 새 문의를 보내 세션이 열린 뒤 다시 시도하세요.", "mentions": [["-509", 0.95], ["활성 세션", 0.98]] }
+      ]
+    },
+    {
+      "id": "demo:c12", "customer": "demo_partner_park",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-09-04 11:20:00", "text": "CLI 로 schedule set 을 하면 권한 오류가 납니다. whoami 는 BrandWrite 로 나오는데요.", "mentions": [["schedule", 0.98], ["whoami", 0.8], ["스코프", 0.9], ["FORBIDDEN", 0.7]] },
+        { "type": "response", "ts": "2026-09-04 11:32:00", "byAgent": true, "text": "schedule set, chat, webhook-domain set 같은 설정 변경은 Admin 스코프가 필요합니다. BrandWrite 는 발신까지입니다. 센터에서 Admin 키를 발급받거나 설정은 센터 화면에서 바꿔 주세요.", "mentions": [["스코프", 0.95], ["schedule", 0.9]] }
+      ]
+    },
+    {
+      "id": "demo:c13", "customer": "demo_partner_lee",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-09-05 09:50:00", "text": "이미지가 포함된 답장을 REST 로 보내려면 upload 후 send 를 어떻게 조합하나요?", "mentions": [["upload", 0.95], ["리치 메시지", 0.9], ["REST API", 0.8]] },
+        { "type": "response", "ts": "2026-09-05 10:10:00", "byAgent": true, "text": "POST /api/agent/upload/image 로 올리면 url 이 돌아옵니다. 그 url 을 카카오 리치 JSON 의 이미지 필드에 넣고 문자열로 직렬화해 POST /api/agent/send/rich 의 rich 로 보내세요. CLI 라면 send --file 한 번으로 업로드와 발신이 같이 됩니다.", "mentions": [["리치 메시지", 0.95], ["upload", 0.9], ["send", 0.85]] },
+        { "type": "inquiry", "ts": "2026-09-05 10:30:00", "text": "rich JSON 의 전체 스키마가 문서에 없는 것 같은데 chat_bubble_type 외에 필수 필드가 뭔가요?", "mentions": [["리치 메시지", 0.98]] }
+      ]
+    },
+    {
+      "id": "demo:c14", "customer": "demo_partner_kang",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-09-06 17:40:00", "text": "잘못 보낸 답장을 취소하고 싶습니다. REST 에 delete 가 안 보이네요.", "mentions": [["delete", 0.98], ["REST API", 0.7], ["CLI", 0.6]] },
+        { "type": "response", "ts": "2026-09-06 17:55:00", "byAgent": true, "text": "발신 취소는 CLI 의 delete 로만 가능합니다(발송 후 24시간 내, --serial 또는 --text). 삭제해도 상담 건수는 복구되지 않고 고객 방에는 메시지가 삭제되었다는 표시가 남습니다.", "mentions": [["delete", 0.98], ["과금", 0.6]] }
+      ]
+    },
+    {
+      "id": "demo:c15", "customer": "demo_partner_choi",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-09-07 10:20:00", "text": "채널 담당자가 퇴사해서 카카오 채널 인증을 우리가 다시 하려는데 기존 설정이 남아 있으면 충돌하나요?", "mentions": [["채널 소유권", 0.98], ["톡브릿지 센터", 0.8]] },
+        { "type": "response", "ts": "2026-09-07 10:35:00", "byAgent": true, "text": "마지막으로 채널 인증에 성공한 설정이 소유권을 가집니다. 새 담당자가 재인증하면 이전 설정은 인증 무효화됨 상태가 되어 이관됩니다. 채널당 24시간 3회 제한이 있고 반영까지 1분 정도 걸립니다.", "mentions": [["채널 소유권", 0.98]] }
+      ]
+    },
+    {
+      "id": "demo:c16", "customer": "demo_partner_lim",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-09-08 09:10:00", "text": "실환경 키로 개발환경 api.talkbridge-dev.com 을 호출하니 401 입니다. 키가 잘못된 건가요?", "mentions": [["dev 환경", 0.95], ["401", 0.9], ["REST API", 0.7]] },
+        { "type": "response", "ts": "2026-09-08 09:18:00", "byAgent": true, "text": "키는 발급한 환경에 묶입니다. 개발환경은 엔터프라이즈 구간에 별도로 제공되며 그쪽 센터에서 발급한 키를 써야 합니다. 파트너 실환경 주소는 https://api.talkbridge.io 입니다.", "mentions": [["dev 환경", 0.95], ["401", 0.8]] }
+      ]
+    },
+    {
+      "id": "demo:c17", "customer": "demo_partner_jung",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-09-08 15:05:00", "text": "history 로 나오는 convId 는 REST 에서 어떻게 얻나요? 상담 단위로 로그를 묶고 싶습니다.", "mentions": [["history", 0.98], ["REST API", 0.8]] }
+      ]
+    },
+    {
+      "id": "demo:c18", "customer": "demo_partner_oh",
+      "turns": [
+        { "type": "inquiry", "ts": "2026-09-08 22:40:00", "text": "setup --help 를 쳤더니 설정이 저장됐다고 나오는데 뭔가 바뀐 건가요?", "mentions": [["setup", 0.98], ["CLI", 0.7]] }
+      ]
+    }
+  ]
+}
