@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TalkBridge 자동응대봇 샘플</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brandmark">
+      <span class="dot" id="conn-dot" title="실시간 연결"></span>
+      <strong>TalkBridge</strong> <span class="muted">자동응대봇 샘플</span>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-view="rules" role="tab">규칙 편집</button>
+        <button class="tab" data-view="monitor" role="tab">실시간 모니터 <span class="badge" id="tab-monitor-badge" hidden></span></button>
+      </nav>
+    </div>
+    <div class="top-controls">
+      <label class="switch" title="끄면 고객 메시지에 자동응답하지 않습니다">
+        <input type="checkbox" id="sw-enabled"><span class="slider"></span><span>봇 켜기</span>
+      </label>
+      <label class="switch live" title="끄면 dry-run — 답장을 만들기만 하고 카카오로 보내지 않습니다(과금 없음)">
+        <input type="checkbox" id="sw-live"><span class="slider"></span><span>실발신</span>
+      </label>
+      <span class="chip" id="ai-chip">AI 확인 중…</span>
+      <button id="btn-save" class="primary" disabled title="Ctrl+S">저장</button>
+    </div>
+  </header>
+
+  <!-- ── 규칙 편집 ─────────────────────────────────────────────── -->
+  <main class="layout rules-view" id="view-rules">
+    <aside class="panel nav">
+      <div class="panel-head"><h2>구성</h2></div>
+      <ul class="nav-list" id="nav-basic">
+        <li data-sel="persona">봇 페르소나</li>
+        <li data-sel="knowledge">대응 지식 <span class="count" id="cnt-knowledge"></span></li>
+        <li data-sel="handoff">상담원 연결</li>
+        <li data-sel="settings">모델 · 동작 설정</li>
+      </ul>
+      <div class="panel-head sub">
+        <h2>시나리오</h2>
+        <button id="btn-add-scenario" class="ghost" title="새 시나리오">＋ 추가</button>
+      </div>
+      <ul class="nav-list" id="nav-scenarios"></ul>
+      <div class="nav-foot">
+        <button id="btn-reset-demo" class="ghost danger" title="data/demo-bot.json 으로 되돌립니다">데모 규칙으로 초기화</button>
+      </div>
+    </aside>
+
+    <section class="panel editor">
+      <div class="panel-head">
+        <h2 id="editor-title">…</h2>
+        <div class="actions" id="editor-actions"></div>
+      </div>
+      <div class="editor-body" id="editor"></div>
+      <p class="hint" id="save-hint">변경하면 [저장] 이 켜집니다. 시뮬레이터로 보내면 자동 저장됩니다.</p>
+    </section>
+
+    <aside class="panel sim">
+      <div class="panel-head">
+        <h2>시뮬레이터 <span class="muted">카카오 발신 없음</span></h2>
+        <div class="actions">
+          <button id="btn-sim-prompt" class="ghost" title="모델에 보내는 지침 전문">지침 보기</button>
+          <button id="btn-sim-reset" class="ghost">초기화</button>
+        </div>
+      </div>
+      <div id="sim-messages" class="messages">
+        <div class="empty">
+          <p>고객이 되어 말을 걸어 보세요.</p>
+          <p class="muted">예) 요금이 궁금해요 → 한 달 200명 정도요</p>
+        </div>
+      </div>
+      <div class="sim-state" id="sim-state"></div>
+      <form id="sim-form" class="composer">
+        <textarea id="sim-input" rows="2" placeholder="고객 메시지 (Enter 전송 · Shift+Enter 줄바꿈)"></textarea>
+        <button type="submit" id="sim-send">보내기</button>
+      </form>
+    </aside>
+  </main>
+
+  <!-- ── 실시간 모니터 ─────────────────────────────────────────── -->
+  <main class="layout monitor-view" id="view-monitor" hidden>
+    <aside class="panel rooms">
+      <div class="panel-head">
+        <h2>상담방</h2>
+        <button id="btn-refresh" class="ghost" title="CLI rooms 다시 조회">새로고침</button>
+      </div>
+      <ul id="room-list" class="room-list"></ul>
+      <p class="hint" id="rooms-hint"></p>
+    </aside>
+
+    <section class="panel thread">
+      <div class="panel-head">
+        <h2 id="thread-title">상담방을 선택하세요</h2>
+        <div class="actions">
+          <button id="btn-bot-toggle" class="ghost" disabled>봇 정지</button>
+        </div>
+      </div>
+      <div class="bot-banner" id="bot-banner" hidden></div>
+      <div id="messages" class="messages">
+        <div class="empty">
+          <p>왼쪽에서 상담방을 고르면 대화와 봇 상태가 표시됩니다.</p>
+          <p class="muted">게이트웨이가 떠 있으면 고객 메시지와 봇 응답이 실시간으로 들어옵니다.</p>
+        </div>
+      </div>
+      <form id="composer" class="composer">
+        <textarea id="input" rows="2" placeholder="상담원 직접 답장 — 보내면 이 방의 봇은 정지됩니다" disabled></textarea>
+        <button id="btn-send" type="submit" disabled>전송</button>
+      </form>
+      <p class="hint">활성 세션에만 발신됩니다. 발신은 상담 건수를 소진합니다.</p>
+    </section>
+
+    <aside class="panel log">
+      <div class="panel-head"><h2>봇 활동</h2></div>
+      <ul id="activity" class="event-log"></ul>
+    </aside>
+  </main>
+
+  <dialog id="prompt-dialog">
+    <form method="dialog">
+      <div class="dialog-head"><strong>모델 지침 (instructions)</strong><button class="ghost">닫기</button></div>
+      <pre id="prompt-text"></pre>
+    </form>
+  </dialog>
+
+  <script src="/app.js"></script>
+</body>
+</html>

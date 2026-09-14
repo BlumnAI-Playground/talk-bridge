@@ -1,0 +1,20 @@
+{
+  "name": "talkbridge-cli-autoreply-bot-sample",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TalkBridge CLI x Gateway 자동응대봇 — 웹에서 시나리오·지식·플로우를 구성하고 OpenAI 로 맥락을 이어 응답. 의존성 0, Node 내장 http + 바닐라 JS",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "gateway:setup": "node scripts/gateway.mjs setup",
+    "gateway:start": "node scripts/gateway.mjs start",
+    "gateway:stop": "node scripts/gateway.mjs stop",
+    "gateway:status": "node scripts/gateway.mjs status",
+    "doctor": "node scripts/doctor.mjs",
+    "sim": "node scripts/sim.mjs",
+    "screenshot": "node scripts/screenshot.mjs"
+  }
+}

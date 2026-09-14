@@ -12,6 +12,7 @@ knowledge:
   - knowledge/talkbridge-cli-spec.md
   - knowledge/local-dev-tunnel-tailscale.md
   - knowledge/talkbridge-knowledge-graph.md
+  - knowledge/talkbridge-autoreply-bot.md
   - knowledge/review-methodology.md
 ---
 

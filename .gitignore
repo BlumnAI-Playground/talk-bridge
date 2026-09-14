@@ -10,6 +10,14 @@ npm-debug.log*
 .env
 .env.local
 
+# 실제 키 — .secret/ 아래는 키 없는 템플릿(*.tmp)만 커밋한다 (저장소 루트·각 샘플 공통)
+**/.secret/*
+!**/.secret/*.tmp
+
+# 04 자동응대봇 — 웹에서 편집한 규칙(런타임 파일). 데모 원본 data/demo-bot.json 만 커밋한다
+sample-project/04-cli-autoreply-bot/data/bot.json
+sample-project/04-cli-autoreply-bot/data/*.writing
+
 # 로그
 *.log
 

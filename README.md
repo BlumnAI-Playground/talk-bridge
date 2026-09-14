@@ -23,6 +23,7 @@
 | 01 | [`sample-project/01-cli-gateway`](sample-project/01-cli-gateway/) | CLI 로 **기본 채팅상담 화면**을 빠르게 만들고 싶을 때 — 노트북·사내망에서 도메인 없이 바로 검증, 사람이 답하는 상담 툴의 출발점 | CLI + 로컬 게이트웨이 | **불필요** | ✅ 완료 |
 | 02 | [`sample-project/02-api-webhook`](sample-project/02-api-webhook/) | 이미 운영 중인 **서버·백엔드에 상담을 붙일 때** — REST 로 조회·발신, 웹훅으로 영속 전달·재시도. 운영 전환·다중 인스턴스의 기준 구현 | REST API + 호스티드 웹훅 | 필요 | ✅ 완료 |
 | 03 | [`sample-project/03-cli-knowledge-graph`](sample-project/03-cli-knowledge-graph/) | **과거 상담을 분석하거나 자동 상담의 근거 데이터**를 만들고 싶을 때 — 고객→문의→응답 그래프를 Cypher 프리셋으로 조회, 온톨로지 설계 참고 | 01 + 상담지식 그래프 프리셋 조회 (AI 미사용) | **불필요** | ✅ 완료 |
+| 04 | [`sample-project/04-cli-autoreply-bot`](sample-project/04-cli-autoreply-bot/) | 상담원 대신 **자동응대봇**이 먼저 받게 하고 싶을 때 — 웹에서 지식·간단 시나리오(플로우)를 구성하고, AI 가 **첫 응대 이후 맥락을 이어** 답한 뒤 필요하면 상담원에게 넘김 | 01 수신 + OpenAI Responses API (`gpt-5.6-terra`) | **불필요** | ✅ 완료 |
 
 [![01-cli-gateway 상담 화면](sample-project/01-cli-gateway/docs/screenshot.png)](sample-project/01-cli-gateway/)
 
@@ -42,6 +43,14 @@
 03 의 그래프는 톡브릿지 이용 매뉴얼을 베이스로 테크 문의를 가상으로 연출한 데모입니다. 고객명은 개인정보라 TalkBridge 가 제공하지 않으며,
 대화 중 파악되면 고객 메모 저장 기능으로 파트너가 관리합니다. 그래프 엣지를 따라 전문 분석이나 자동 상담 대응에 활용할 수 있습니다 —
 [TalkBridge CLI — 그래프 확장편](sample-project/03-cli-knowledge-graph/#talkbridge-cli--그래프-확장편).
+
+04 는 수신한 고객 메시지를 **자동응대봇**이 받습니다. 봇 페르소나·대응 지식·간단 시나리오(단계별 플로우)를 웹에서 구성하고,
+같은 상담 세션의 이력과 진행 상태(시나리오·단계·받은 정보)를 매 턴 OpenAI 에 넘겨 **두 번째 답장부터 맥락이 이어지게** 합니다.
+카카오 발신 없는 시뮬레이터와 dry-run 으로 먼저 다듬고, 상담원 연결이 필요하면 그 방의 봇이 멈춥니다.
+아래는 톡브릿지 내부에서 **실제 카카오톡 채널로 문의해 본 실상담 시뮬레이션** 결과입니다 — 봇이 요금 문의에 규모를 묻고,
+"한달 250명정도?" 라는 짧은 답을 기억해 요금제를 추천했습니다.
+
+[![04 자동응대봇 실상담 시뮬레이션 — 실발신 자동응대](sample-project/04-cli-autoreply-bot/docs/screenshot-monitor.png)](sample-project/04-cli-autoreply-bot/#실상담-시뮬레이션--톡브릿지-채널에-실제로-문의해-봤습니다)
 
 자세한 비교와 선택 기준은 [`sample-project/README.md`](sample-project/README.md) 를 보세요.
 
@@ -104,8 +113,8 @@ sample-project/01-cli-gateway 에 상담 분배 기능을 추가해줘
 sample-project/01-cli-gateway 에 업무시간 외 자동 응답을 넣어줘
   → schedule 밖 시간에 message 가 오면 안내 문구를 send 하고, agent echo 는 응답 대상에서 제외
 
-sample-project/01-cli-gateway 를 기반으로 AI 상담봇을 만들어줘
-  → webhook.js 본문 보강 직후 LLM 호출, 사람 이관 키워드가 오면 상담원 화면으로 넘김
+sample-project/04-cli-autoreply-bot 에 업무시간 시나리오를 추가해줘
+  → schedule get 으로 상담시간을 읽어 지침의 현재 상태에 넣고, 시간 외에는 접수만 받고 상담원 연결 예약
 
 sample-project/01-cli-gateway 의 인메모리 저장소를 SQLite 로 바꿔줘
   → delivery_id UNIQUE 멱등 테이블 + 메시지 테이블 (샘플 → 운영 전환의 첫 단계)

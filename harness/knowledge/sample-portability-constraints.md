@@ -61,3 +61,15 @@
 
 이 대응이 유지되어야 "01 로 검증하고 02 로 승격" 경로와 "파트너의 커스텀 로직이 그대로 살아남는다" 는 문서 약속이 참이 된다.
 02 의 기본 포트는 8788 (01 은 8787) — 두 샘플을 나란히 띄울 수 있게 하기 위함.
+
+## 7. 03·04 파생 규칙 (2026-09-14)
+
+| 샘플 | 포트 | 01 과 바이트 동일 | 파생 파일 |
+|---|---|---|---|
+| 03 | 8789 | `signature.js` `store.js` `sse.js` | `cli.js` = `--json` 판 + knowledge, `webhook.js` = 01 과 동일 로직 |
+| 04 | **8792** (8790·8791 은 CLI 지식 조회 API·웹뷰가 점유) | `signature.js` `store.js` `sse.js` | `cli.js` = 03 에서 knowledge 절만 제거, `webhook.js` = 03 + import 1줄 + 봇 훅(`onSessionBoundary` ×2, `onCustomerMessage`, `onAgentEcho`), `gateway.mjs` = 03 과 동일 |
+
+- 04 는 외부 API(OpenAI)를 쓰지만 **의존성 0 유지** — Node 18 내장 `fetch`. SDK 를 넣으면 P1
+- 04 의 키 파일 탐색이 `../../.secret/` 을 보는 것은 "상위 디렉터리 참조 금지" 의 **명시적 예외** — 샘플 폴더 `.secret/` 과 `OPENAI_API_KEY` 가 우선이고 README §7 에 순서가 적혀 있어야 한다
+- 런타임 산출물(`data/bot.json`)과 실제 키(`.secret/*.json`)는 `.gitignore` 로 커밋 제외, 원본(`data/demo-bot.json`)·템플릿(`*.tmp`)만 커밋
+- 자동응답 코드의 가드 판정은 [`talkbridge-autoreply-bot.md`](talkbridge-autoreply-bot.md) §2

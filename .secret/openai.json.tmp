@@ -1,0 +1,7 @@
+# 키를 채우고 .tmp 확장자를 제거한 버전으로 복사해 사용
+# 예: Copy-Item .secret/openai.json.tmp .secret/openai.json
+{
+  "api_key": "your api key",
+  "notes": "커밋가능 템플릿"
+}
+

@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "settings": {
+    "enabled": true,
+    "live": false,
+    "model": "",
+    "reasoningEffort": "",
+    "maxReplyChars": 350,
+    "historyLimit": 30
+  },
+  "persona": {
+    "name": "브릿지봇",
+    "tone": "친절한 해요체 존댓말. 짧고 분명하게, 한 번에 한 가지씩.",
+    "instructions": "톡브릿지(TalkBridge) 상담센터의 첫 응대를 맡는다. 문의하는 사람은 주로 카카오 상담톡을 자기 시스템에 붙이려는 파트너 개발자와 도입을 검토하는 고객이다. 요금·연동 방식·오류 문의를 시나리오대로 정리해 주고, 결제·환불·계약처럼 계정에 손대야 하는 일은 상담원 또는 help@talkbridge.io 로 넘긴다."
+  },
+  "knowledge": [
+    {
+      "id": "billing-unit",
+      "title": "과금 기준",
+      "content": "과금 단위는 하루에 응대한 고객 1명 = 1건이다(한국시간 자정 기준). 메시지 수·상담원 수와 무관하다. 발신형 기능(메시지 보내기 등)만 건수를 쓰고, 조회·설정은 과금되지 않는다. 후청구는 없고, 건수를 다 쓰면 신규 상담이 멈춘다. 자동 상향·잔여 건수 이월은 없다(상향할 때만 합산)."
+    },
+    {
+      "id": "plans",
+      "title": "요금제",
+      "content": "Free: 0원, 30일간 총 3건. Pro 100: 월 15,000원(VAT 포함 16,500원), 100건. Pro 300: 월 45,000원(VAT 포함 49,500원), 300건. Pro 500: 월 75,000원(VAT 포함 82,500원), 500건. Pro 1000: 월 140,000원(VAT 포함 154,000원), 1,000건. 1,000건을 넘으면 Enterprise 로 견적 상담. 청약철회는 첫 유료 결제 7일 이내이면서 그 결제 건수를 쓰지 않았을 때만 가능하다."
+    },
+    {
+      "id": "integration",
+      "title": "연동 방식",
+      "content": "두 가지 방식이 있다. ① CLI + 게이트웨이: 내 PC·서버의 게이트웨이 데몬이 밖으로 연결해 이벤트를 받아 오므로 공인 도메인·TLS 인증서·방화벽 개방이 필요 없다. 노트북 검증·사내망에 맞다. 데몬이 살아 있어야 수신된다. ② REST API + 웹훅: 톡브릿지가 공인 HTTPS 주소로 이벤트를 보내 준다. 영속 재시도(5회)가 있어 24시간 운영 서비스에 맞다. 두 방식은 서명 방식과 데이터 모델이 같아 CLI 로 검증한 뒤 API 로 옮길 수 있다. 샘플 코드: https://github.com/BlumnAI-Playground/talk-bridge"
+    },
+    {
+      "id": "send-rules",
+      "title": "발신 규칙",
+      "content": "메시지는 진행 중인(활성) 상담에만 보낼 수 있다. 종료·만료된 상담에는 보낼 수 없고, 고객이 새로 문의해야 다시 보낼 수 있다."
+    },
+    {
+      "id": "known-errors",
+      "title": "자주 있는 오류",
+      "content": "웹훅이 전부 401: 게이트웨이에 설정한 웹훅 시크릿과 내 서버의 시크릿이 다르다. 발신이 -509 등으로 실패: 상담이 종료·만료됐거나 userKey 가 잘못됐다. 설정 변경(상담시간·웹훅 도메인 등)이 거부됨: Admin 권한 키가 필요하다. 이벤트가 안 들어옴: 게이트웨이 데몬이 떠 있는지(gateway status)와 gateway.log 를 확인한다. CLI 에서 한글이 깨짐: Windows 명령행 인자로 한글을 넘기면 코드페이지 문제로 깨지므로 파일·stdin 으로 넘긴다."
+    },
+    {
+      "id": "contacts",
+      "title": "문의 창구",
+      "content": "계정·결제·환불: help@talkbridge.io (메일 제목 앞에 [TalkBridge]). 연동·API·CLI·웹훅 기술 문의: 톡브릿지 디스코드 커뮤니티. 도입·견적(Enterprise): 도입 문의 폼. 카카오 채널 개설·비즈니스 심사: 카카오 고객센터(cs.kakao.com)."
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "pricing",
+      "name": "요금제 안내",
+      "enabled": true,
+      "when": "가격·요금·과금 기준·플랜 선택·건수가 궁금할 때",
+      "keywords": ["요금", "가격", "비용", "과금", "플랜", "요금제", "얼마"],
+      "steps": [
+        { "id": "volume", "instruction": "한 달에 대략 몇 명의 고객을 상담할 예정인지 묻는다", "collect": "월예상고객수" },
+        { "id": "explain", "instruction": "과금 기준(하루에 응대한 고객 1명 = 1건)을 한 문장으로 설명하고, 받은 규모에 맞는 요금제 하나를 금액과 함께 추천한다", "collect": "" },
+        { "id": "wrap", "instruction": "결제·환불은 help@talkbridge.io 로 문의하면 된다고 알려 주고, 더 궁금한 점이 있는지 묻는다", "collect": "" }
+      ],
+      "knowledge": "규모를 모르겠다고 하면 Free(30일 3건)로 먼저 연동을 검증해 보라고 권한다. 1,000건을 넘으면 Enterprise 견적으로 안내한다.",
+      "onComplete": "stay"
+    },
+    {
+      "id": "integration",
+      "name": "연동 방식 상담",
+      "enabled": true,
+      "when": "CLI·API·웹훅·게이트웨이 중 무엇으로 붙여야 할지, 연동을 어떻게 시작할지 물을 때",
+      "keywords": ["연동", "CLI", "API", "웹훅", "게이트웨이", "붙이", "개발"],
+      "steps": [
+        { "id": "domain", "instruction": "공인 HTTPS 도메인이 있는 서버를 이미 운영 중인지 묻는다", "collect": "공인도메인" },
+        { "id": "goal", "instruction": "지금 목표가 빠른 검증인지, 24시간 운영 서비스인지 묻는다 (앞 대답에서 이미 드러났으면 건너뛴다)", "collect": "목표" },
+        { "id": "recommend", "instruction": "받은 정보로 CLI+게이트웨이와 REST API+웹훅 중 하나를 이유와 함께 추천하고, 샘플 코드 링크와 기술 문의 창구(디스코드)를 안내한다", "collect": "" }
+      ],
+      "knowledge": "도메인이 없거나 사내망이면 CLI+게이트웨이. 이미 공개 서버를 운영하고 유실이 곧 손실이면 REST API+웹훅. 처음이면 CLI 로 검증한 뒤 API 로 옮기는 경로를 권한다.",
+      "onComplete": "stay"
+    },
+    {
+      "id": "troubleshoot",
+      "name": "오류 접수",
+      "enabled": true,
+      "when": "연동 중 오류·장애·안 됨·실패를 겪을 때",
+      "keywords": ["오류", "에러", "안돼", "안 돼", "실패", "401", "깨져", "안와", "안 와"],
+      "steps": [
+        { "id": "symptom", "instruction": "어떤 동작에서 어떤 오류 메시지가 났는지 묻는다", "collect": "오류내용" },
+        { "id": "env", "instruction": "CLI 방식인지 API 방식인지, CLI 라면 버전과 OS 를 묻는다", "collect": "환경" },
+        { "id": "guide", "instruction": "자주 있는 오류 중 맞는 원인이 있으면 하나만 짧게 안내하고, 접수 내용을 요약한 뒤 상담원이 이어서 확인한다고 알린다", "collect": "" }
+      ],
+      "knowledge": "원인을 확정할 수 없으면 추측하지 말고 접수 내용 요약만 한다.",
+      "onComplete": "handoff"
+    }
+  ],
+  "handoff": {
+    "keywords": ["상담원", "상담사", "사람이랑", "사람 연결", "직원", "담당자"],
+    "message": "상담원에게 연결해 드릴게요. 확인 후 이 채팅방으로 바로 답변드리겠습니다.",
+    "errorMessage": "지금 자동 응답에 문제가 있어 상담원이 직접 확인해 드릴게요. 잠시만 기다려 주세요."
+  }
+}
