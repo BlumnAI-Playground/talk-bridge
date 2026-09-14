@@ -220,6 +220,37 @@
     .flow-mobile-text p { font-size: .82rem; color: var(--mute); line-height: 1.5; }
     .flow-mobile-connector { width: 2px; height: 16px; background: rgba(255,255,255,.06); margin-left: 15px; }
 
+    /* ---- AUTO-REPLY BOT (sample 04) ---- */
+    .autoreply { background: radial-gradient(ellipse 600px 360px at 70% 40%, rgba(81,43,212,.1) 0%, transparent 70%), var(--dark); padding: 100px 32px; }
+    .autoreply-inner { max-width: var(--max-width); margin: 0 auto; }
+    .autoreply-head { text-align: center; max-width: 720px; margin: 0 auto 48px; }
+    .autoreply-head h2 { font-size: 2.3rem; font-weight: 700; line-height: 1.2; margin-bottom: 16px; letter-spacing: -.02em; }
+    .autoreply-head p { font-size: 1.05rem; color: var(--mute-light); line-height: 1.7; }
+    .autoreply-head .live-pill { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 18px; background: rgba(255,95,87,.12); border: 1px solid rgba(255,95,87,.35); border-radius: 100px; padding: 5px 14px; font-size: .75rem; font-weight: 600; color: #ff8a80; }
+    .autoreply-head .live-pill i { width: 7px; height: 7px; border-radius: 50%; background: #ff5f57; animation: pulse-dot 2s ease-in-out infinite; }
+    .autoreply-grid { display: grid; grid-template-columns: 1.45fr 1fr; gap: 32px; align-items: start; }
+    .autoreply-grid > * { min-width: 0; }
+    .autoreply-shot figure { position: relative; }
+    .autoreply-shot img { width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); cursor: pointer; transition: transform .2s, box-shadow .2s; display: block; }
+    .autoreply-shot img:hover { transform: scale(1.015); box-shadow: 0 8px 40px rgba(81,43,212,.25); }
+    .autoreply-shot figcaption { font-size: .85rem; color: var(--mute-light); margin-top: 14px; text-align: center; line-height: 1.6; }
+    .chat-card { background: #0d0d14; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; overflow: hidden; }
+    .chat-card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.06); font-size: .78rem; color: var(--mute); font-family: 'JetBrains Mono', monospace; }
+    .chat-card-head b { color: var(--teal); font-weight: 500; }
+    .chat-body { padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; background: linear-gradient(180deg, rgba(178,199,217,.08), rgba(178,199,217,.03)); }
+    .bub { max-width: 88%; padding: 9px 13px; border-radius: 14px; font-size: .9rem; line-height: 1.5; }
+    .bub.in { align-self: flex-start; background: rgba(255,255,255,.92); color: #1b1f24; border-top-left-radius: 4px; }
+    .bub.out { align-self: flex-end; background: #ffe812; color: #1b1f24; border-top-right-radius: 4px; }
+    .bub-meta { font-size: .7rem; color: var(--mute); font-family: 'JetBrains Mono', monospace; margin-top: -4px; }
+    .bub-meta.in { align-self: flex-start; } .bub-meta.out { align-self: flex-end; text-align: right; }
+    .bub-meta em { font-style: normal; color: var(--teal); }
+    .autoreply-points { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; }
+    .ar-point { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 12px; padding: 24px; }
+    .ar-point h3 { font-size: 1.02rem; font-weight: 600; margin-bottom: 8px; color: var(--paper); }
+    .ar-point p { font-size: .9rem; color: var(--mute-light); line-height: 1.6; }
+    @media (max-width: 960px) { .autoreply-grid, .autoreply-points { grid-template-columns: 1fr; } }
+    @media (max-width: 720px) { .autoreply { padding: 64px 20px; } .autoreply-head h2 { font-size: 1.6rem; } }
+
     /* ---- FEATURES ---- */
     .features { background: var(--ink); padding: 80px 32px 100px; }
     .features-inner { max-width: var(--max-width); margin: 0 auto; text-align: center; }
@@ -527,6 +558,7 @@
       </a>
       <ul class="nav-links">
         <li><a href="#features">Features</a></li>
+        <li><a href="#autoreply">Auto-Reply</a></li>
         <li><a href="#get-started">Get Started</a></li>
         <li><a href="https://api.talkbridge.io/" target="_blank" rel="noopener">Docs</a></li>
         <li><a href="https://github.com/BlumnAI-Playground/talk-bridge#샘플" target="_blank" rel="noopener">Samples</a></li>
@@ -538,6 +570,7 @@
     <ul class="nav-mobile">
       <li><a href="https://api.talkbridge.io/" target="_blank" rel="noopener">문서 검색</a></li>
       <li><a href="#features">Features</a></li>
+      <li><a href="#autoreply">Auto-Reply</a></li>
       <li><a href="#get-started">Get Started</a></li>
       <li><a href="https://api.talkbridge.io/" target="_blank" rel="noopener">Docs</a></li>
       <li><a href="https://github.com/BlumnAI-Playground/talk-bridge#샘플" target="_blank" rel="noopener">Samples</a></li>
@@ -644,7 +677,7 @@
                 <code><span class="code-cmd">git</span> clone <span class="code-url">https://github.com/BlumnAI-Playground/talk-bridge</span> <span class="code-flag">&amp;&amp;</span> <span class="code-cmd">cd</span> talk-bridge/sample-project/01-cli-gateway</code>
                 <button class="copy-btn" aria-label="복사" data-copy="git clone https://github.com/BlumnAI-Playground/talk-bridge && cd talk-bridge/sample-project/01-cli-gateway"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
               </div>
-              <p class="tab-note">의존성 0개 Node 샘플 3종 — 01 CLI 채팅상담 화면, 02 REST + 호스티드 웹훅, 03 상담지식 그래프 확장편. 실측으로 검증한 참조 구현이라 그대로 복사해 고객 맞춤으로 바꾸면 됩니다.</p>
+              <p class="tab-note">의존성 0개 Node 샘플 4종 — 01 CLI 채팅상담 화면, 02 REST + 호스티드 웹훅, 03 상담지식 그래프 확장편, 04 <a href="#autoreply" style="color:var(--teal);text-decoration:none">자동응대봇</a>(웹 규칙 구성 + OpenAI 맥락 유지). 실측으로 검증한 참조 구현이라 그대로 복사해 고객 맞춤으로 바꾸면 됩니다.</p>
             </div>
           </div>
         </div>
@@ -689,7 +722,7 @@
           <p class="problem-turn">TalkBridge 는 그 복잡도를 <em>브릿지 안에서</em> 흡수합니다. 당신에게 남는 건 두 계약 — <em>서명된 수신 웹훅</em>과 <em>발신 API</em>. 그리고 그 둘을 터미널·AI 앱·서버 어디서든 같은 브랜드 키로 쓰는 <em>CLI · MCP · API</em> 세 갈래입니다.</p>
         </div>
         <div class="approval-showcase reveal">
-          <img src="assets/screenshot-consult.png" alt="TalkBridge CLI 게이트웨이로 만든 채팅상담 화면 — 상담방 목록, 대화, 실시간 수신 로그" width="1400" height="760" loading="lazy" onclick="document.getElementById('lightbox').classList.add('open')">
+          <img src="assets/screenshot-consult.png" data-lightbox alt="TalkBridge CLI 게이트웨이로 만든 채팅상담 화면 — 상담방 목록, 대화, 실시간 수신 로그" width="1400" height="760" loading="lazy">
           <span class="expand-hint"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg> 크게 보기</span>
           <p class="approval-caption">CLI 게이트웨이 하나로 노트북에서 띄운 채팅상담 화면 — 샘플 01, 의존성 0개.</p>
         </div>
@@ -697,7 +730,7 @@
     </section>
     <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
       <button class="lightbox-close" aria-label="닫기">&times;</button>
-      <img src="assets/screenshot-consult.png" alt="채팅상담 화면 — 전체 크기">
+      <img src="assets/screenshot-consult.png" alt="스크린샷 — 전체 크기">
     </div>
 
     <!-- How It Works -->
@@ -757,6 +790,65 @@
             <div class="flow-mobile-connector"></div>
             <div class="flow-mobile-step"><div class="flow-mobile-num">4</div><div class="flow-mobile-text"><h4>고객에게 도착</h4><p>같은 발신 계약으로 답장, agent echo 로 확인, 지식 그래프에 적재</p></div></div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Auto-Reply Bot (sample 04) -->
+    <section class="autoreply" id="autoreply">
+      <div class="autoreply-inner reveal">
+        <div class="autoreply-head">
+          <p class="section-label">Sample 04 · Auto-Reply Bot</p>
+          <span class="live-pill"><i></i> 실채널 · 실발신 실상담 시뮬레이션</span>
+          <h2>상담원보다 먼저 받고,<br>두 번째 답장부터 맥락을 잇는 자동응대봇</h2>
+          <p>
+            응대 규칙은 코드가 아니라 웹 화면에서 만듭니다 — 봇 페르소나, 대응 지식, 그리고 "이런 문의면 이 순서로" 진행하는 간단 시나리오.
+            CLI 게이트웨이로 받은 고객 메시지를 같은 상담 세션의 이력·진행 상태와 함께 OpenAI 에 넘기고, 답장은 CLI <code class="inline">send</code> 로 돌려보냅니다.
+            아래는 톡브릿지 내부에서 <strong>실제 카카오톡 채널로 문의</strong>하고 이 샘플이 <strong>실발신으로 자동응대</strong>한 결과입니다.
+          </p>
+        </div>
+
+        <div class="autoreply-grid">
+          <div class="autoreply-shot">
+            <figure>
+              <img src="assets/screenshot-autoreply.png" data-lightbox alt="자동응대봇 실시간 모니터 — 카카오톡 고객의 요금 문의에 봇이 규모를 묻고, 250명이라는 답을 기억해 Pro 300 요금제를 추천한 실발신 장면" width="1440" height="860" loading="lazy">
+              <figcaption>실시간 모니터 — 방별 봇 상태 <code class="inline">요금제 안내 2/3 · 월예상고객수=250명</code>, 오른쪽은 발신됨·응답시간·판단 근거가 쌓이는 봇 활동 로그.</figcaption>
+            </figure>
+          </div>
+
+          <div class="chat-card" aria-label="실상담 시뮬레이션 대화">
+            <div class="chat-card-head"><span>kakao · 실발신</span><b>gpt-5.6-terra · medium</b></div>
+            <div class="chat-body">
+              <div class="bub in">안녕하세요</div>
+              <div class="bub out">안녕하세요, 브릿지봇입니다. 무엇을 도와드릴까요?</div>
+              <div class="bub-meta out">#35 · 인사 · <em>3.3s</em></div>
+              <div class="bub in">요금이 궁금해요</div>
+              <div class="bub out">요금제 안내를 도와드릴게요. 한 달에 대략 몇 명의 고객을 상담할 예정이신가요?</div>
+              <div class="bub-meta out">#37 · 요금제 안내 <em>1/3</em> · 3.1s</div>
+              <div class="bub in">한달 250명정도?</div>
+              <div class="bub out">하루에 응대한 고객 1명당 1건으로 계산돼요. 월 250명 규모라면 Pro 300을 추천드려요. 월 45,000원이며 VAT 포함 49,500원이고, 300건까지 이용할 수 있어요.</div>
+              <div class="bub-meta out">#39 · 요금제 안내 <em>2/3</em> · 월예상고객수=250명 · 3.6s</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="autoreply-points">
+          <div class="ar-point">
+            <h3>규칙은 웹에서</h3>
+            <p>페르소나 · 대응 지식 카드 · 시나리오 플로우(의도 → 단계 → 완료 후 계속/상담원 연결/종료)를 화면에서 편집하고, 카카오 발신 없는 시뮬레이터로 먼저 다듬습니다.</p>
+          </div>
+          <div class="ar-point">
+            <h3>맥락은 매 턴 이어서</h3>
+            <p>"250명정도?" 같은 짧은 답을 직전 질문의 대답으로 받아 다음 단계로. 주제가 바뀌면 시나리오를 전환하고, 이미 받은 정보는 다시 묻지 않습니다. 금액은 지식에 넣은 값만 씁니다.</p>
+          </div>
+          <div class="ar-point">
+            <h3>자동응답 사고를 막는 가드</h3>
+            <p>내 발신 <code class="inline">agent</code> echo 무한 루프 차단, 게이트웨이 재기동 시 과거 문의 일괄 답장 차단, 사람이 답하면 그 방의 봇 정지, dry-run 기본. 의존성 0 · 공인 도메인 불필요.</p>
+          </div>
+        </div>
+
+        <div class="section-cta">
+          <a href="https://github.com/BlumnAI-Playground/talk-bridge/tree/main/sample-project/04-cli-autoreply-bot" class="btn btn-ghost" target="_blank" rel="noopener">샘플 04 자동응대봇 보기 &rarr;</a>
         </div>
       </div>
     </section>
@@ -898,6 +990,11 @@
             setTimeout(function () { b.classList.remove('copied'); b.innerHTML = COPY; }, 1500);
           }).catch(function () { window.prompt('복사:', text); });
         });
+      });
+      // 라이트박스 — data-lightbox 이미지를 크게
+      var lb = document.getElementById('lightbox'), lbImg = lb.querySelector('img');
+      document.querySelectorAll('img[data-lightbox]').forEach(function (img) {
+        img.addEventListener('click', function () { lbImg.src = img.src; lbImg.alt = img.alt; lb.classList.add('open'); });
       });
       // 햄버거
       var ham = document.querySelector('.nav-hamburger'), mob = document.querySelector('.nav-mobile');
