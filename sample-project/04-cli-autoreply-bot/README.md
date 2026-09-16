@@ -2,6 +2,8 @@
 
 > 샘플 모음 인덱스는 [`../README.md`](../README.md) 를 보세요.
 > 수신·서명·발신은 [01](../01-cli-gateway/) 과 같고, 조회는 [03](../03-cli-knowledge-graph/) 처럼 CLI `--json` 을 씁니다.
+> 내부 동작(시퀀스·상태 전이·가드)과 **페르소나 → 지식 → 시나리오 추가 → 시뮬레이터 데모** 워크스루는
+> [`docs/autoreply-bot-guide.md`](docs/autoreply-bot-guide.md) 에 화면과 함께 있습니다.
 
 ## 소개
 
@@ -251,7 +253,10 @@ npm run gateway:start
 │  ├─ gateway.mjs     sink 구성 + 데몬 수명주기 (03 과 동일)
 │  ├─ sim.mjs         터미널 시뮬레이터
 │  └─ screenshot.mjs  소개용 스크린샷 (Playwright, 선택)
-├─ docs/              screenshot-monitor.png (실상담 시뮬레이션 · 실발신) · screenshot.png (규칙 편집+시뮬레이터) · screenshot-scenario.png
+├─ docs/
+│  ├─ autoreply-bot-guide.md   개발 가이드 · 워크스루 (구조 · 시퀀스 · 상태 전이 · 가드 · 화면별 절차)
+│  ├─ walkthrough/*.png        워크스루 화면 10장
+│  └─ screenshot*.png          소개용 (실상담 시뮬레이션 · 규칙 편집 · 시나리오)
 └─ .env.example
 ```
 

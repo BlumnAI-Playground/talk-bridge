@@ -52,6 +52,9 @@
 
 [![04 자동응대봇 실상담 시뮬레이션 — 실발신 자동응대](sample-project/04-cli-autoreply-bot/docs/screenshot-monitor.png)](sample-project/04-cli-autoreply-bot/#실상담-시뮬레이션--톡브릿지-채널에-실제로-문의해-봤습니다)
 
+04 의 내부 동작과 구성 절차(페르소나 → 지식 → 시나리오 추가 → 시뮬레이터 데모)는
+[`04 개발 가이드 · 워크스루`](sample-project/04-cli-autoreply-bot/docs/autoreply-bot-guide.md) 에 화면과 함께 정리했습니다.
+
 자세한 비교와 선택 기준은 [`sample-project/README.md`](sample-project/README.md) 를 보세요.
 
 ## 시작하기
