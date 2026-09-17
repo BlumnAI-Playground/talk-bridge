@@ -279,7 +279,18 @@
     /* ---- COMMUNITY ---- */
     .community { background: radial-gradient(ellipse 600px 400px at 50% 50%, rgba(81,43,212,.1) 0%, transparent 70%), var(--dark); padding: 100px 32px 80px; text-align: center; }
     .community-inner { max-width: var(--max-width); margin: 0 auto; }
-    .community h2 { font-size: 2rem; font-weight: 700; margin-bottom: 48px; letter-spacing: -.02em; }
+    .about-terminal { max-width: 620px; margin: 0 auto 48px; text-align: left; }
+    .about-body { font-size: .95rem; line-height: 1.9; }
+    .about-body .terminal-cursor { height: 1.1em; }
+    .about-line { color: var(--mute-light); min-height: 1.9em; word-break: keep-all; }
+    .about-line.gap { margin-top: 14px; }
+    .about-line.cmd-line { color: var(--teal); }
+    .about-line .prompt { color: var(--teal); user-select: none; }
+    .about-line.cmd-line:not(:first-child) { margin-top: 14px; }
+    .about-line.slogan { color: var(--paper); font-weight: 500; font-size: 1.25rem; }
+    .powered-by { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 56px; }
+    .powered-label { color: var(--paper); font-size: .85rem; font-weight: 500; letter-spacing: .04em; }
+    .powered-tech { color: #4f9dff; font-size: 1.6rem; font-weight: 800; letter-spacing: -.01em; }
     .social-tiles { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
     .social-tile { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 16px 28px; color: var(--mute-light); text-decoration: none; font-size: .92rem; font-weight: 500; transition: border-color .2s, color .2s, background .2s; }
     .social-tile:hover { border-color: rgba(81,43,212,.4); color: var(--paper); background: rgba(255,255,255,.06); }
@@ -316,7 +327,9 @@
       .problem-inner { grid-template-columns: 1fr; text-align: center; }
       .problem-text { text-align: center; }
       .problem-divider { margin-left: auto; margin-right: auto; }
-      .problem h2, .features-inner h2, .get-started-inner h2, .ecosystem-inner h2, .community h2 { font-size: 1.6rem; }
+      .problem h2, .features-inner h2, .get-started-inner h2, .ecosystem-inner h2 { font-size: 1.6rem; }
+      .about-body { font-size: .8rem; }
+      .about-line.slogan { font-size: 1.05rem; }
       .social-tiles { flex-direction: column; align-items: center; }
       .footer-inner { flex-direction: column; text-align: center; }
       .btn-lg { padding: 14px 24px; font-size: .92rem; }
@@ -926,7 +939,22 @@
     <!-- Community -->
     <section class="community">
       <div class="community-inner reveal">
-        <h2>함께 만듭니다</h2>
+        <div class="terminal about-terminal" role="img" aria-label="TalkBridge 는 소규모 전문팀이 필요한 AI Agent 를 직접 설계할 수 있도록 다양한 샘플 코드를 만들어 지원합니다. 완성된 Agent 를 제공하는 것이 아니라, 고객사의 Agent 를 위해 준비합니다. Ready For Your Agent.">
+          <div class="terminal-chrome" aria-hidden="true">
+            <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
+            <span class="terminal-title">talkbridge — about</span>
+          </div>
+          <div class="terminal-body about-body" aria-hidden="true" data-typer>
+            <div class="about-line cmd-line"><span class="prompt">$ </span><span class="cmd">talkbridge --about</span></div>
+            <div class="about-line">TalkBridge 는 소규모 전문팀이</div>
+            <div class="about-line">필요한 AI Agent 를 직접 설계할 수 있도록</div>
+            <div class="about-line">다양한 샘플 코드를 만들어 지원합니다.</div>
+            <div class="about-line gap">완성된 Agent 를 제공하는 것이 아니라,</div>
+            <div class="about-line">고객사의 Agent 를 위해 준비합니다.</div>
+            <div class="about-line cmd-line"><span class="prompt">$ </span><span class="cmd">echo $SLOGAN</span></div>
+            <div class="about-line slogan">Ready For Your Agent</div>
+          </div>
+        </div>
         <div class="community-stats" aria-live="polite">
           <a class="stat-pill" href="https://github.com/BlumnAI-Playground/talk-bridge/tags" target="_blank" rel="noopener" data-stat="release" hidden>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
@@ -950,6 +978,10 @@
             <svg class="stroke" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
             기술 문의
           </a>
+        </div>
+        <div class="powered-by">
+          <span class="powered-label">Powered by</span>
+          <span class="powered-tech">.NET</span>
         </div>
       </div>
     </section>
@@ -1005,6 +1037,38 @@
         var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } }); }, { threshold: 0.08 });
         document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
       } else { document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('visible'); }); }
+      // 소개 터미널 — 화면에 들어오면 CLI 입력처럼 한 줄씩 타이핑 (모션 줄이기 설정이면 그대로 표시)
+      var typer = document.querySelector('[data-typer]');
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (typer && 'IntersectionObserver' in window && !reduce) {
+        var cursor = document.createElement('span'); cursor.className = 'terminal-cursor';
+        var steps = Array.prototype.map.call(typer.querySelectorAll('.about-line'), function (line) {
+          var cmd = line.querySelector('.cmd'), prompt = line.querySelector('.prompt'), target = cmd;
+          var text = (cmd || line).textContent;
+          if (cmd) cmd.textContent = '';
+          else { line.textContent = ''; target = line.appendChild(document.createElement('span')); }
+          if (prompt) prompt.style.visibility = 'hidden';
+          return { line: line, target: target, prompt: prompt, text: text, isCmd: !!cmd };
+        });
+        var run = function (i) {
+          if (i >= steps.length) return;
+          var s = steps[i], n = 0;
+          if (s.prompt) s.prompt.style.visibility = '';
+          s.line.appendChild(cursor);
+          (function tick() {
+            if (n < s.text.length) {
+              s.target.textContent = s.text.slice(0, ++n);
+              setTimeout(tick, s.isCmd ? 70 + Math.random() * 60 : 32);
+            } else if (i + 1 < steps.length) {
+              setTimeout(function () { run(i + 1); }, s.isCmd ? 450 : (steps[i + 1].isCmd ? 900 : 220));
+            }
+          })();
+        };
+        var tio = new IntersectionObserver(function (es) {
+          if (es[0].isIntersecting) { tio.disconnect(); setTimeout(function () { run(0); }, 300); }
+        }, { threshold: 0.4 });
+        tio.observe(typer);
+      }
       // 라이브 스탯 — npm CLI 버전, 샘플 최신 태그 (실패하면 그냥 숨김)
       function show(sel, fill) { document.querySelectorAll(sel).forEach(function (el) { fill(el); el.hidden = false; }); }
       fetch('https://registry.npmjs.org/@blumn-ai/talkbridge-cli/latest').then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
