@@ -1,0 +1,22 @@
+{
+  "name": "talkbridge-cli-jev-faq-bot-sample",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TalkBridge CLI x Gateway — TypeSafe Jev(System One) 자동응대봇. 문장을 만들지 않고 고르는 AI 로 FAQ·선택지형 시나리오를 200ms 대에 판정. 의존성 0, Node 내장 http + 바닐라 JS",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "gateway:setup": "node scripts/gateway.mjs setup",
+    "gateway:start": "node scripts/gateway.mjs start",
+    "gateway:stop": "node scripts/gateway.mjs stop",
+    "gateway:status": "node scripts/gateway.mjs status",
+    "doctor": "node scripts/doctor.mjs",
+    "sim": "node scripts/sim.mjs",
+    "eval": "node scripts/eval.mjs",
+    "screenshot": "node scripts/screenshot.mjs",
+    "walkthrough": "node scripts/walkthrough.mjs"
+  }
+}

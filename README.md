@@ -24,6 +24,7 @@
 | 02 | [`sample-project/02-api-webhook`](sample-project/02-api-webhook/) | 이미 운영 중인 **서버·백엔드에 상담을 붙일 때** — REST 로 조회·발신, 웹훅으로 영속 전달·재시도. 운영 전환·다중 인스턴스의 기준 구현 | REST API + 호스티드 웹훅 | 필요 | ✅ 완료 |
 | 03 | [`sample-project/03-cli-knowledge-graph`](sample-project/03-cli-knowledge-graph/) | **과거 상담을 분석하거나 자동 상담의 근거 데이터**를 만들고 싶을 때 — 고객→문의→응답 그래프를 Cypher 프리셋으로 조회, 온톨로지 설계 참고 | 01 + 상담지식 그래프 프리셋 조회 (AI 미사용) | **불필요** | ✅ 완료 |
 | 04 | [`sample-project/04-cli-autoreply-bot`](sample-project/04-cli-autoreply-bot/) | 상담원 대신 **자동응대봇**이 먼저 받게 하고 싶을 때 — 웹에서 지식·간단 시나리오(플로우)를 구성하고, AI 가 **첫 응대 이후 맥락을 이어** 답한 뒤 필요하면 상담원에게 넘김 | 01 수신 + OpenAI Responses API (`gpt-5.6-terra`) | **불필요** | ✅ 완료 |
+| 05 | [`sample-project/05-cli-jev-faq-bot`](sample-project/05-cli-jev-faq-bot/) | 반복 FAQ·정해진 절차를 **정해진 문구로 0.2초 만에** 자동응대하고 싶을 때 — 문장을 만들지 않고 **고르는 AI**(TypeSafe Jev)가 FAQ·선택지형 시나리오를 판정, 확신도로 자동 답변·되묻기·상담원을 가름 (한국어 평가 67건 · 자동 답변 오답 0) | 01 수신 + TypeSafe Jev System One (`jev-latest`) | **불필요** | ✅ 완료 |
 
 [![01-cli-gateway 상담 화면](sample-project/01-cli-gateway/docs/screenshot.png)](sample-project/01-cli-gateway/)
 

@@ -17,6 +17,10 @@ npm-debug.log*
 # 04 자동응대봇 — 웹에서 편집한 규칙(런타임 파일). 데모 원본 data/demo-bot.json 만 커밋한다
 sample-project/04-cli-autoreply-bot/data/bot.json
 sample-project/04-cli-autoreply-bot/data/*.writing
+# 05 Jev 자동응대봇 — 웹에서 편집한 규칙(런타임 파일)과 평가 결과. 데모 원본 data/demo-bot.json · data/eval-set.json 만 커밋한다
+sample-project/05-cli-jev-faq-bot/data/bot.json
+sample-project/05-cli-jev-faq-bot/data/*.writing
+sample-project/05-cli-jev-faq-bot/data/eval-report*.json
 
 # 로그
 *.log

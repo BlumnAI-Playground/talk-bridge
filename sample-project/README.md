@@ -12,6 +12,7 @@
 | 02 | [`02-api-webhook`](02-api-webhook/) | 이미 운영 중인 **서버·백엔드에 상담을 붙일 때** — REST 로 조회·발신, 웹훅으로 영속 전달·재시도. 운영 전환·다중 인스턴스의 기준 구현 | REST API + 호스티드 웹훅 | 필요 | ✅ 완료 |
 | 03 | [`03-cli-knowledge-graph`](03-cli-knowledge-graph/) | **과거 상담을 분석하거나 자동 상담의 근거 데이터**를 만들고 싶을 때 — 고객→문의→응답 그래프를 Cypher 프리셋으로 조회, 온톨로지 설계 참고 | 01 + 상담지식 그래프 프리셋 조회 (AI 미사용) | **불필요** | ✅ 완료 |
 | 04 | [`04-cli-autoreply-bot`](04-cli-autoreply-bot/) | 상담원 대신 **자동응대봇**이 먼저 받게 하고 싶을 때 — 웹에서 지식·간단 시나리오(플로우)를 구성하고, AI 가 **첫 응대 이후 맥락을 이어** 답한 뒤 필요하면 상담원에게 넘김 | 01 수신 + OpenAI Responses API (`gpt-5.6-terra`) | **불필요** | ✅ 완료 |
+| 05 | [`05-cli-jev-faq-bot`](05-cli-jev-faq-bot/) | 반복 FAQ·정해진 절차를 **정해진 문구로 0.2초 만에** 자동응대하고 싶을 때 — 문장을 만들지 않고 **고르는 AI**(TypeSafe Jev)가 FAQ·선택지형 시나리오를 판정, 확신도로 자동 답변·되묻기·상담원을 가름 (한국어 평가 67건 · 자동 답변 오답 0) | 01 수신 + TypeSafe Jev System One (`jev-latest`) | **불필요** | ✅ 완료 |
 
 [![01-cli-gateway 상담 화면](01-cli-gateway/docs/screenshot.png)](01-cli-gateway/)
 
@@ -127,6 +128,15 @@ OpenAI 키는 `.secret/openai.json`(커밋 차단)에서 읽고, 모델(`gpt-5.6
 [![04 자동응대봇 규칙 편집 + 시뮬레이터](04-cli-autoreply-bot/docs/screenshot.png)](04-cli-autoreply-bot/)
 
 <p align="center"><sub>규칙 편집 — 시나리오 플로우 편집기 · 카카오 발신 없는 시뮬레이터에서 맥락이 이어지는 3턴</sub></p>
+
+05 는 04 와 같은 수신·가드 위에서 AI 만 바꿉니다. **TypeSafe Jev**(System One 모델)는 답장을 쓰지 않고 **고릅니다** —
+FAQ 카드와 선택지형 시나리오 중 무엇인지, 고객의 짧은 대답이 어느 선택지인지를 확률·확신도와 함께 200ms 대에 돌려줍니다.
+고객에게 나가는 글은 전부 웹에서 써 둔 문구라 없는 말을 지어낼 수 없고, 확신도 구간으로 자동 답변·되묻기·모를 때를 가릅니다.
+한국어는 공식 문서에 언급이 없어 평가 세트 67건으로 먼저 측정했습니다 — 의도 98% · 단계 대답 100% · **자동 답변 오답 0건** · p50 205ms.
+
+[![05 Jev 자동응대봇 — 선택지형 시나리오 · 시뮬레이터 · Jev 판정 패널](05-cli-jev-faq-bot/docs/screenshot.png)](05-cli-jev-faq-bot/)
+
+<p align="center"><sub><b>05-cli-jev-faq-bot</b> — "한달 250명정도?" 를 Jev 가 <code>월 101~300명</code> 98% 로 분류 · 곁가지 질문(환불)은 FAQ 로 답하고 복귀 · 턴당 0.2초</sub></p>
 
 ## 어느 쪽을 고를까
 
