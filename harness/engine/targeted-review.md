@@ -1,6 +1,6 @@
 ---
 name: targeted-review
-agents: [webhook-security-guard, sample-portability-reviewer, manual-digest-verifier]
+agents: [webhook-security-guard, sample-portability-reviewer, manual-digest-verifier, jev-faq-expert]
 triggers:
   - "변경 점검해"
   - "변경사항 점검해"
@@ -27,6 +27,7 @@ description: git 변경분만 대상으로, 바뀐 파일의 성격에 따라 �
    | `server/config.js`, `scripts/*.mjs`, `package.json`, `.env.example`, `.gitignore` | sample-portability-reviewer |
    | `public/**` | webhook-security-guard (E 항목만) + sample-portability-reviewer (A 항목만) |
    | `README.md`, `docs/*.md`, `sample-project/README.md`, `sample-project/*/README.md` | manual-digest-verifier **+** sample-portability-reviewer (C 항목만) |
+   | Jev 를 호출하거나 FAQ 카드·임계값을 다루는 파일 (`typesafe`·`systemone`·`jev` 문자열 포함, `data/*faq*.json`) | jev-faq-expert **+** webhook-security-guard (B·F 항목만) |
    | 새 샘플 디렉터리 추가 (`sample-project/NN-*/`) | full-review 로 승격 제안 |
    | `harness/**` | 검수 대상 아님 — `하네스를 개선해` 로 안내 |
 

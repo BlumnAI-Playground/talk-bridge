@@ -17,6 +17,7 @@ harness/
 │   ├── talkbridge-cli-spec.md              CLI 명령·스코프·출력 파싱·dev/prod 환경 매핑
 │   ├── talkbridge-rest-api-spec.md         REST 엔드포인트·봉투 실측·에러 코드·CLI 와의 차이
 │   ├── talkbridge-knowledge-graph.md       CLI 상담지식 그래프 — 스키마·단일 프로세스 잠금·query vs search·데모 데이터 규칙
+│   ├── typesafe-jev-system-one.md         TypeSafe Jev(System One) — API·primitive·confidence 게이트·간편 FAQ 설계 기준·한국어 실측(05)
 │   └── cli-feat/                           ★ 현재 CLI 버전 기준 "다음 개선 예고" 스펙 (CF-001~010, 개선 수집관이 관리)
 │       ├── README.md                       인덱스·상태 규칙·템플릿
 │       ├── v1.0.0/CF-nnn-*.md              결함·제약·문서 갭·DX — 현상(실측)·파트너 영향·우회·제안 스펙·수용 기준·재검수(v1.1.0)
@@ -30,7 +31,8 @@ harness/
 │   ├── webhook-security-guard.md     웹훅 경비대장 — 서명·시크릿·인젝션
 │   ├── sample-portability-reviewer.md 이식 감독관 — 제약·환경·문서-실행 일치
 │   ├── manual-digest-verifier.md     문서 대조관 — 요약↔README↔코드 드리프트
-│   └── improvement-collector.md      개선 수집관 — 발견을 cli-feat 개선 예고 스펙으로
+│   ├── improvement-collector.md      개선 수집관 — 발견을 cli-feat 개선 예고 스펙으로
+│   └── jev-faq-expert.md             Jev 즉답 판정관 — Jev 간편 FAQ 자동응답 설계·검수
 ├── engine/               # Layer 3: 물길 — 워크플로우
 │   ├── full-review.md        전체 점검 (3 에이전트 → 종합)
 │   └── targeted-review.md    변경 점검 (git diff → 라우팅)
@@ -52,6 +54,7 @@ harness/
   보안 점검해                 ← webhook-security-guard 단독
   이식성 점검해               ← sample-portability-reviewer 단독
   문서 검증해                 ← manual-digest-verifier 단독
+  jev 설계해 / jev 점검해      ← jev-faq-expert: Jev 간편 FAQ 봇 설계 · 검수
   개선사항 수집해             ← improvement-collector: 로그·문서의 발견을 cli-feat 스펙으로
 
 꽃을 심다 (개선부):
@@ -70,6 +73,8 @@ harness/
 
 ## 버전 히스토리
 
+- [v1.3.1](v1.3.1.md) — 05 Jev 자동응대봇 착수·완료: Jev 한국어 실측(의도 98% · 단계 100% · 자동 오답 0 · p50 205ms), 판정관 체크리스트 D 보강 (2026-09-29)
+- [v1.3.0](v1.3.0.md) — Jev 즉답 판정관 영입 + TypeSafe Jev 지식 (간편 FAQ 자동응답 샘플 준비) (2026-09-29)
 - [v1.2.2](v1.2.2.md) — CLI v1.1.0 재검수: cli-feat 상태 갱신(7 구현·1 부분·2 미반영·CF-011 신설), 03 샘플 재개, 01 파서 호환 (2026-09-09)
 - [v1.2.1](v1.2.1.md) — 정원지기 네이밍 전환(카카시 → 정원지기, `/harness-creator`), 이름을 "블룸 정원의 하네스"로 (2026-09-09)
 - [v1.2.0](v1.2.0.md) — 개선 수집관 영입 + cli-feat 개선 예고 10건 (CLI v1.0.0 기준) (2026-09-09)

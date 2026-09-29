@@ -1,6 +1,6 @@
 ---
 name: full-review
-agents: [webhook-security-guard, sample-portability-reviewer, manual-digest-verifier]
+agents: [webhook-security-guard, sample-portability-reviewer, manual-digest-verifier, jev-faq-expert]
 triggers:
   - "전체 점검해"
   - "하네스 수행해"
@@ -26,12 +26,14 @@ description: 세 전문가가 샘플 전체를 각자의 관점으로 검수하�
    - 체크리스트 A~E 전부
 4. **문서 대조** → agent: manual-digest-verifier
    - 대조 A~D 전부
+4'. **Jev FAQ 검수** → agent: jev-faq-expert — Jev(TypeSafe) 를 쓰는 샘플이 있을 때만
+   - 검수 모드 A~F 전부. 해당 샘플이 없으면 "미대상"
 5. **종합** → agent: tamer
    - 세 에이전트의 발견 항목을 심각도 내림차순으로 병합. 같은 위치를 두 에이전트가 지적하면 하나로 합치고 근거를 병기
    - `knowledge/review-methodology.md` §5 골격으로 보고서 작성
    - 3축 등급은 에이전트별 등급 중 **가장 낮은 것**을 종합 등급으로 한다
 
-> 2~4 는 서로 독립이므로 병렬로 수행해도 된다. 단, 각 에이전트는 자기 로그를 따로 남긴다.
+> 2~4' 는 서로 독립이므로 병렬로 수행해도 된다. 단, 각 에이전트는 자기 로그를 따로 남긴다.
 
 ## Input
 
