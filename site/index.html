@@ -9,6 +9,9 @@
   <meta property="og:description" content="AI 시대의 상담톡. 한 번 로그인하면 CLI 로 상담하고, MCP 로 AI 앱에 붙이고, API 로 서버에 통합합니다.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="assets/screenshot-consult.png">
+  <link rel="alternate" hreflang="ko" href="https://blumnai-playground.github.io/talk-bridge/?lang=ko">
+  <link rel="alternate" hreflang="en" href="https://blumnai-playground.github.io/talk-bridge/?lang=en">
+  <link rel="alternate" hreflang="x-default" href="https://blumnai-playground.github.io/talk-bridge/">
   <link rel="icon" href="assets/favicon.ico" sizes="any">
   <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -291,6 +294,34 @@
     .powered-by { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 56px; }
     .powered-label { color: var(--paper); font-size: .85rem; font-weight: 500; letter-spacing: .04em; }
     .powered-tech { color: #4f9dff; font-size: 1.6rem; font-weight: 800; letter-spacing: -.01em; }
+    .powered-techs { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; justify-content: center; }
+    .powered-sep { color: var(--mute); font-size: 1.2rem; font-weight: 500; }
+    a.powered-tech { text-decoration: none; transition: color .15s, text-shadow .15s; }
+    .powered-tech.akka { color: #54c7ec; }
+    .powered-tech.akka:hover { color: #8fdcf5; text-shadow: 0 0 18px rgba(84,199,236,.35); }
+    /* 언어 전환 */
+    .lang-toggle { display: inline-flex; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; overflow: hidden; margin-left: 16px; flex-shrink: 0; }
+    .lang-toggle button { background: transparent; border: 0; color: #8a8fa3; font: 600 .75rem 'JetBrains Mono', monospace; padding: 6px 10px; cursor: pointer; transition: background .15s, color .15s; }
+    .lang-toggle button:hover { color: #fff; }
+    .lang-toggle button[aria-pressed="true"] { background: var(--teal-dim); color: var(--teal); }
+    @media (max-width: 720px) { .lang-toggle { margin-left: auto; margin-right: 8px; } }
+    /* Jev 기능 카드 (전체 폭) */
+    .feature-card.feature-wide { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1.15fr; gap: 32px; align-items: center; border-color: rgba(0,212,170,.25); background: linear-gradient(135deg, rgba(0,212,170,.06), rgba(81,43,212,.06)); }
+    .feature-wide .jev-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .feature-wide .jev-head .feature-icon { margin-bottom: 0; }
+    .new-pill { font-size: .72rem; font-weight: 700; letter-spacing: .08em; color: var(--teal); background: var(--teal-dim); border: 1px solid rgba(0,212,170,.3); border-radius: 100px; padding: 4px 12px; }
+    .feature-wide h3 { font-size: 1.35rem; }
+    .jev-stats { list-style: none; display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0; padding: 0; }
+    .jev-stats li { flex: 1 1 140px; background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.06); border-radius: 10px; padding: 12px 14px; }
+    .jev-stats b { display: block; font: 700 1.35rem 'JetBrains Mono', monospace; color: var(--teal); }
+    .jev-stats span { font-size: .8rem; color: var(--mute-light); line-height: 1.4; }
+    .jev-link { color: var(--teal); text-decoration: none; font-weight: 600; font-size: .95rem; }
+    .jev-link:hover { text-decoration: underline; }
+    .jev-shot { margin: 0; }
+    .jev-shot img { width: 100%; height: auto; border-radius: 10px; border: 1px solid rgba(255,255,255,.08); cursor: pointer; display: block; transition: transform .2s; }
+    .jev-shot img:hover { transform: scale(1.015); }
+    .jev-shot figcaption { font-size: .82rem; color: var(--mute-light); margin-top: 10px; text-align: center; }
+    @media (max-width: 960px) { .feature-card.feature-wide { grid-template-columns: 1fr; } }
     .social-tiles { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
     .social-tile { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 16px 28px; color: var(--mute-light); text-decoration: none; font-size: .92rem; font-weight: 500; transition: border-color .2s, color .2s, background .2s; }
     .social-tile:hover { border-color: rgba(81,43,212,.4); color: var(--paper); background: rgba(255,255,255,.06); }
@@ -347,7 +378,7 @@
   </style>
 </head>
 <body>
-  <a href="#main-content" class="skip-link">본문으로 건너뛰기</a>
+  <a href="#main-content" class="skip-link" data-i18n="skip">본문으로 건너뛰기</a>
 
   <nav class="nav">
     <div class="nav-inner">
@@ -567,7 +598,7 @@
       </a>
       <a href="https://api.talkbridge.io/" class="nav-search" target="_blank" rel="noopener">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
-        문서 검색
+        <span data-i18n="nav.search">문서 검색</span>
       </a>
       <ul class="nav-links">
         <li><a href="#features">Features</a></li>
@@ -578,10 +609,14 @@
         <li><a href="https://discord.com/invite/xhPhgUFjew" target="_blank" rel="noopener">Discord</a></li>
         <li><a href="https://github.com/BlumnAI-Playground/talk-bridge" target="_blank" rel="noopener">GitHub</a></li>
       </ul>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button type="button" data-lang="ko" aria-pressed="true">KO</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
       <button class="nav-hamburger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
     <ul class="nav-mobile">
-      <li><a href="https://api.talkbridge.io/" target="_blank" rel="noopener">문서 검색</a></li>
+      <li><a href="https://api.talkbridge.io/" target="_blank" rel="noopener" data-i18n="nav.search">문서 검색</a></li>
       <li><a href="#features">Features</a></li>
       <li><a href="#autoreply">Auto-Reply</a></li>
       <li><a href="#get-started">Get Started</a></li>
@@ -598,10 +633,10 @@
     <section class="hero">
       <div class="hero-inner">
         <div class="hero-text">
-          <div class="hero-pill"><span class="hero-pill-dot"></span> CLI · MCP · API — 브랜드 키 하나로</div>
-          <h1>AI 시대의 상담톡,<br> 터미널에서.</h1>
+          <div class="hero-pill"><span class="hero-pill-dot"></span> <span data-i18n="hero.pill">CLI · MCP · API — 브랜드 키 하나로</span></div>
+          <h1 data-i18n="hero.h1">AI 시대의 상담톡,<br> 터미널에서.</h1>
           <p class="sub-tagline">TalkBridge <b>CLI</b> × <b>API</b> × <b>MCP</b></p>
-          <p class="descriptor">
+          <p class="descriptor" data-i18n="hero.desc">
             카카오 상담톡을 당신의 터미널, AI 앱, 서버에 잇는 브릿지.
             파트너 계약·발송 규격·재시도 같은 채널의 복잡도는 TalkBridge 가 흡수하고,
             당신은 <strong>수신 웹훅 + 발신 API</strong> 두 계약만 다룹니다. AI 와 함께 쓰라고 만든 CLI 가 그 중심에 있습니다.
@@ -627,7 +662,7 @@
               <span class="stat-value" data-discord-count>&mdash;</span><span class="stat-label">in Discord</span>
             </a>
           </div>
-          <p class="social-proof">카카오 상담톡 연동을 만드는 <a href="https://talkbridge.io/" target="_blank" rel="noopener">TalkBridge</a> 가 만듭니다 · 공개 매뉴얼 <a href="https://api.talkbridge.io/" target="_blank" rel="noopener">api.talkbridge.io</a></p>
+          <p class="social-proof" data-i18n="hero.proof">카카오 상담톡 연동을 만드는 <a href="https://talkbridge.io/" target="_blank" rel="noopener">TalkBridge</a> 가 만듭니다 · 공개 매뉴얼 <a href="https://api.talkbridge.io/" target="_blank" rel="noopener">api.talkbridge.io</a></p>
         </div>
 
         <!-- Terminal -->
@@ -639,11 +674,11 @@
             </div>
             <div class="terminal-body">
               <div class="terminal-line typing"><span class="prompt">$ </span><span class="cmd">npm</span> <span class="arg">install -g</span> <span class="url">@blumn-ai/talkbridge-cli</span></div>
-              <div class="terminal-line"><span class="prompt">$ </span><span class="cmd">talkbridge</span> <span class="arg">login</span> <span class="flag"># 브라우저 로그인 → 브랜드 키 자동 저장</span></div>
+              <div class="terminal-line"><span class="prompt">$ </span><span class="cmd">talkbridge</span> <span class="arg">login</span> <span class="flag" data-i18n="hero.t1"># 브라우저 로그인 → 브랜드 키 자동 저장</span></div>
               <div class="terminal-line"><span class="prompt">$ </span><span class="cmd">talkbridge</span> <span class="arg">rooms --brand mybrand --json</span></div>
-              <div class="terminal-line"><span class="out">[{"userKey":"kakao:Uabc123","lastText":"배송 언제 오나요?"}]</span></div>
-              <div class="terminal-line"><span class="prompt">$ </span><span class="cmd">talkbridge</span> <span class="arg">send --brand mybrand --to kakao:Uabc123 --text "내일 도착해요"</span></div>
-              <div class="terminal-line"><span class="prompt">$ </span><span class="cmd">talkbridge</span> <span class="arg">gateway start</span> <span class="flag"># Discord · Slack · 웹훅으로 상담 팬아웃</span><span class="terminal-cursor"></span></div>
+              <div class="terminal-line"><span class="out" data-i18n="hero.t2">[{"userKey":"kakao:Uabc123","lastText":"배송 언제 오나요?"}]</span></div>
+              <div class="terminal-line"><span class="prompt">$ </span><span class="cmd">talkbridge</span> <span class="arg" data-i18n="hero.t3">send --brand mybrand --to kakao:Uabc123 --text "내일 도착해요"</span></div>
+              <div class="terminal-line"><span class="prompt">$ </span><span class="cmd">talkbridge</span> <span class="arg">gateway start</span> <span class="flag" data-i18n="hero.t4"># Discord · Slack · 웹훅으로 상담 팬아웃</span><span class="terminal-cursor"></span></div>
             </div>
           </div>
         </div>
@@ -654,14 +689,14 @@
     <section class="get-started" id="get-started">
       <div class="get-started-inner">
         <p class="section-label">Get Started</p>
-        <h2>2분이면 첫 답장을 보냅니다</h2>
+        <h2 data-i18n="gs.h2">2분이면 첫 답장을 보냅니다</h2>
 
         <div class="install-tabs">
-          <div class="tab-bar" role="tablist" aria-label="연결 방식">
+          <div class="tab-bar" role="tablist" aria-label="연결 방식" data-i18n-attr="aria-label:gs.tabs">
             <button class="tab active" role="tab" id="tab-cli" aria-selected="true" aria-controls="panel-cli" data-tab="cli">CLI</button>
             <button class="tab" role="tab" id="tab-mcp" aria-selected="false" aria-controls="panel-mcp" data-tab="mcp" tabindex="-1">MCP</button>
             <button class="tab" role="tab" id="tab-api" aria-selected="false" aria-controls="panel-api" data-tab="api" tabindex="-1">API</button>
-            <button class="tab" role="tab" id="tab-samples" aria-selected="false" aria-controls="panel-samples" data-tab="samples" tabindex="-1">샘플</button>
+            <button class="tab" role="tab" id="tab-samples" aria-selected="false" aria-controls="panel-samples" data-tab="samples" tabindex="-1" data-i18n="gs.tab.samples">샘플</button>
           </div>
           <div class="tab-panels">
             <div class="tab-panel active" id="panel-cli" role="tabpanel" aria-labelledby="tab-cli">
@@ -669,28 +704,28 @@
                 <code><span class="code-cmd">npm</span> <span class="code-flag">install -g</span> <span class="code-url">@blumn-ai/talkbridge-cli</span></code>
                 <button class="copy-btn" aria-label="복사" data-copy="npm install -g @blumn-ai/talkbridge-cli"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
               </div>
-              <p class="tab-note">Node 18+. Windows · macOS(Intel/Apple Silicon) · Linux(x64/arm64) 바이너리가 npm 에 동봉되어 별도 다운로드가 없습니다. 개발자용 dev 채널은 <code>@blumn-dev/talkbridge-cli</code>.</p>
+              <p class="tab-note" data-i18n="gs.note.cli">Node 18+. Windows · macOS(Intel/Apple Silicon) · Linux(x64/arm64) 바이너리가 npm 에 동봉되어 별도 다운로드가 없습니다. 개발자용 dev 채널은 <code>@blumn-dev/talkbridge-cli</code>.</p>
             </div>
             <div class="tab-panel" id="panel-mcp" role="tabpanel" aria-labelledby="tab-mcp">
               <div class="code-block">
                 <code><span class="code-url">https://mcp.talkbridge.io/mcp</span></code>
                 <button class="copy-btn" aria-label="복사" data-copy="https://mcp.talkbridge.io/mcp"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
               </div>
-              <p class="tab-note">코드 없이. ChatGPT <em>설정 → 커넥터 → 새로 추가 → MCP 서버</em>, Claude Desktop <em>설정 → Connectors → Add Custom Connector</em> 에 이 주소를 붙여 넣고 구글 계정으로 한 번 로그인하면 끝. 키·비밀번호가 필요 없습니다. → <a href="https://api.talkbridge.io/mcp/connect/" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none">연결 가이드</a></p>
+              <p class="tab-note" data-i18n="gs.note.mcp">코드 없이. ChatGPT <em>설정 → 커넥터 → 새로 추가 → MCP 서버</em>, Claude Desktop <em>설정 → Connectors → Add Custom Connector</em> 에 이 주소를 붙여 넣고 구글 계정으로 한 번 로그인하면 끝. 키·비밀번호가 필요 없습니다. → <a href="https://api.talkbridge.io/mcp/connect/" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none">연결 가이드</a></p>
             </div>
             <div class="tab-panel" id="panel-api" role="tabpanel" aria-labelledby="tab-api">
               <div class="code-block">
                 <code><span class="code-cmd">curl</span> <span class="code-flag">-H</span> "Authorization: Bearer $TB_API_KEY" <span class="code-url">https://api.talkbridge.io/api/agent/me</span></code>
                 <button class="copy-btn" aria-label="복사" data-copy='curl -H "Authorization: Bearer $TB_API_KEY" https://api.talkbridge.io/api/agent/me'><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
               </div>
-              <p class="tab-note">TalkBridge 센터에서 발급한 Agent 키(BrandWrite)로 REST 발신, 서명 웹훅(HMAC-SHA256)으로 수신. 필드명은 CLI <code>--json</code> 과 동일해 CLI 로 만든 것을 그대로 서버로 옮길 수 있습니다. → <a href="https://api.talkbridge.io/authentication/" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none">인증</a> · <a href="https://api.talkbridge.io/api/outbound/" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none">발신 API</a> · <a href="https://api.talkbridge.io/webhooks/setup/" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none">웹훅</a></p>
+              <p class="tab-note" data-i18n="gs.note.api">TalkBridge 센터에서 발급한 Agent 키(BrandWrite)로 REST 발신, 서명 웹훅(HMAC-SHA256)으로 수신. 필드명은 CLI <code>--json</code> 과 동일해 CLI 로 만든 것을 그대로 서버로 옮길 수 있습니다. → <a href="https://api.talkbridge.io/authentication/" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none">인증</a> · <a href="https://api.talkbridge.io/api/outbound/" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none">발신 API</a> · <a href="https://api.talkbridge.io/webhooks/setup/" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none">웹훅</a></p>
             </div>
             <div class="tab-panel" id="panel-samples" role="tabpanel" aria-labelledby="tab-samples">
               <div class="code-block">
                 <code><span class="code-cmd">git</span> clone <span class="code-url">https://github.com/BlumnAI-Playground/talk-bridge</span> <span class="code-flag">&amp;&amp;</span> <span class="code-cmd">cd</span> talk-bridge/sample-project/01-cli-gateway</code>
                 <button class="copy-btn" aria-label="복사" data-copy="git clone https://github.com/BlumnAI-Playground/talk-bridge && cd talk-bridge/sample-project/01-cli-gateway"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
               </div>
-              <p class="tab-note">의존성 0개 Node 샘플 4종 — 01 CLI 채팅상담 화면, 02 REST + 호스티드 웹훅, 03 상담지식 그래프 확장편, 04 <a href="#autoreply" style="color:var(--teal);text-decoration:none">자동응대봇</a>(웹 규칙 구성 + OpenAI 맥락 유지). 실측으로 검증한 참조 구현이라 그대로 복사해 고객 맞춤으로 바꾸면 됩니다.</p>
+              <p class="tab-note" data-i18n="gs.note.samples">의존성 0개 Node 샘플 5종 — 01 CLI 채팅상담 화면, 02 REST + 호스티드 웹훅, 03 상담지식 그래프 확장편, 04 <a href="#autoreply" style="color:var(--teal);text-decoration:none">자동응대봇</a>(웹 규칙 구성 + OpenAI 맥락 유지), 05 <a href="#jev" style="color:var(--teal);text-decoration:none">Jev 자동응대봇</a>(고르는 AI · 0.2초 판정). 실측으로 검증한 참조 구현이라 그대로 복사해 고객 맞춤으로 바꾸면 됩니다.</p>
             </div>
           </div>
         </div>
@@ -703,23 +738,23 @@
               <code><span class="code-cmd">talkbridge</span> login <span class="code-flag">&amp;&amp;</span> <span class="code-cmd">talkbridge</span> whoami</code>
               <button class="copy-btn" aria-label="복사" data-copy="talkbridge login && talkbridge whoami"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
-            <p class="step-note">브라우저에서 파트너 계정으로 로그인하고 브랜드를 고르면 5자리 코드 한 번으로 BrandWrite 키가 발급·저장됩니다. <code>whoami</code> 가 허용 브랜드를 보여주면 준비 완료.</p>
+            <p class="step-note" data-i18n="gs.step1">브라우저에서 파트너 계정으로 로그인하고 브랜드를 고르면 5자리 코드 한 번으로 BrandWrite 키가 발급·저장됩니다. <code>whoami</code> 가 허용 브랜드를 보여주면 준비 완료.</p>
           </div>
           <div class="next-step">
             <span class="next-step-label">Then</span>
             <div class="code-block">
-              <code><span class="code-cmd">talkbridge</span> rooms --brand &lt;키&gt; --json <span class="code-flag">&amp;&amp;</span> <span class="code-cmd">talkbridge</span> send --brand &lt;키&gt; --to &lt;userKey&gt; --text "안녕하세요"</code>
-              <button class="copy-btn" aria-label="복사" data-copy='talkbridge rooms --brand <키> --json && talkbridge send --brand <키> --to <userKey> --text "안녕하세요"'><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+              <code data-i18n="gs.code2"><span class="code-cmd">talkbridge</span> rooms --brand &lt;키&gt; --json <span class="code-flag">&amp;&amp;</span> <span class="code-cmd">talkbridge</span> send --brand &lt;키&gt; --to &lt;userKey&gt; --text "안녕하세요"</code>
+              <button class="copy-btn" aria-label="복사" data-copy='talkbridge rooms --brand <키> --json && talkbridge send --brand <키> --to <userKey> --text "안녕하세요"' data-i18n-attr="data-copy:gs.copy2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
-            <p class="step-note">상담방을 JSON 으로 받고, 활성 세션의 고객에게 답장합니다. <code>userKey</code> 하나로 대화가 이어지고, 발신은 상담 건수를 소진합니다. → <a href="https://api.talkbridge.io/cli/commands/" target="_blank" rel="noopener">명령 전체</a></p>
+            <p class="step-note" data-i18n="gs.step2">상담방을 JSON 으로 받고, 활성 세션의 고객에게 답장합니다. <code>userKey</code> 하나로 대화가 이어지고, 발신은 상담 건수를 소진합니다. → <a href="https://api.talkbridge.io/cli/commands/" target="_blank" rel="noopener">명령 전체</a></p>
           </div>
           <div class="next-step">
-            <span class="next-step-label">Then (채널 · AI · 지식 연결)</span>
+            <span class="next-step-label" data-i18n="gs.then3">Then (채널 · AI · 지식 연결)</span>
             <div class="code-block">
               <code><span class="code-cmd">talkbridge</span> setup <span class="code-flag">&amp;&amp;</span> <span class="code-cmd">talkbridge</span> gateway start</code>
               <button class="copy-btn" aria-label="복사" data-copy="talkbridge setup && talkbridge gateway start"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
             </div>
-            <p class="step-note">TUI 마법사에서 Discord · Slack · 웹훅 싱크, 고객 메모(CRM), AI 프로바이더, 상담지식 온톨로지를 켭니다. 게이트웨이는 <em>내 쪽에서 밖으로</em> 붙기 때문에 공인 도메인·TLS 없이 노트북에서도 상담이 들어옵니다. → <a href="https://api.talkbridge.io/cli/gateway/" target="_blank" rel="noopener">게이트웨이</a></p>
+            <p class="step-note" data-i18n="gs.step3">TUI 마법사에서 Discord · Slack · 웹훅 싱크, 고객 메모(CRM), AI 프로바이더, 상담지식 온톨로지를 켭니다. 게이트웨이는 <em>내 쪽에서 밖으로</em> 붙기 때문에 공인 도메인·TLS 없이 노트북에서도 상담이 들어옵니다. → <a href="https://api.talkbridge.io/cli/gateway/" target="_blank" rel="noopener">게이트웨이</a></p>
           </div>
         </div>
       </div>
@@ -729,20 +764,20 @@
     <section class="problem">
       <div class="problem-inner">
         <div class="problem-text reveal">
-          <h2>상담 채널은 무겁고, AI 는 이미 빠릅니다.</h2>
-          <p>카카오 상담톡을 직접 붙이려면 파트너 계약, 발송 규격, 세션 제약, 재시도와 순서 보장까지 전부 당신 몫이었습니다. AI 에이전트를 얹기도 전에 지칩니다.</p>
+          <h2 data-i18n="pb.h2">상담 채널은 무겁고, AI 는 이미 빠릅니다.</h2>
+          <p data-i18n="pb.p1">카카오 상담톡을 직접 붙이려면 파트너 계약, 발송 규격, 세션 제약, 재시도와 순서 보장까지 전부 당신 몫이었습니다. AI 에이전트를 얹기도 전에 지칩니다.</p>
           <div class="problem-divider"></div>
-          <p class="problem-turn">TalkBridge 는 그 복잡도를 <em>브릿지 안에서</em> 흡수합니다. 당신에게 남는 건 두 계약 — <em>서명된 수신 웹훅</em>과 <em>발신 API</em>. 그리고 그 둘을 터미널·AI 앱·서버 어디서든 같은 브랜드 키로 쓰는 <em>CLI · MCP · API</em> 세 갈래입니다.</p>
+          <p class="problem-turn" data-i18n="pb.p2">TalkBridge 는 그 복잡도를 <em>브릿지 안에서</em> 흡수합니다. 당신에게 남는 건 두 계약 — <em>서명된 수신 웹훅</em>과 <em>발신 API</em>. 그리고 그 둘을 터미널·AI 앱·서버 어디서든 같은 브랜드 키로 쓰는 <em>CLI · MCP · API</em> 세 갈래입니다.</p>
         </div>
         <div class="approval-showcase reveal">
-          <img src="assets/screenshot-consult.png" data-lightbox alt="TalkBridge CLI 게이트웨이로 만든 채팅상담 화면 — 상담방 목록, 대화, 실시간 수신 로그" width="1400" height="760" loading="lazy">
-          <span class="expand-hint"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg> 크게 보기</span>
-          <p class="approval-caption">CLI 게이트웨이 하나로 노트북에서 띄운 채팅상담 화면 — 샘플 01, 의존성 0개.</p>
+          <img src="assets/screenshot-consult.png" data-lightbox alt="TalkBridge CLI 게이트웨이로 만든 채팅상담 화면 — 상담방 목록, 대화, 실시간 수신 로그" width="1400" height="760" loading="lazy" data-i18n-attr="alt:pb.alt">
+          <span class="expand-hint"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg> <span data-i18n="zoom">크게 보기</span></span>
+          <p class="approval-caption" data-i18n="pb.cap">CLI 게이트웨이 하나로 노트북에서 띄운 채팅상담 화면 — 샘플 01, 의존성 0개.</p>
         </div>
       </div>
     </section>
     <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
-      <button class="lightbox-close" aria-label="닫기">&times;</button>
+      <button class="lightbox-close" aria-label="닫기" data-i18n-attr="aria-label:close">&times;</button>
       <img src="assets/screenshot-consult.png" alt="스크린샷 — 전체 크기">
     </div>
 
@@ -750,16 +785,16 @@
     <section class="how-it-works">
       <div class="how-it-works-inner reveal">
         <p class="section-label">How It Works</p>
-        <h2>고객 한 마디가 답장이 되기까지</h2>
-        <p>카카오톡에서 고객이 말을 걸면 TalkBridge 가 서명된 이벤트로 알리고, 사람이든 AI 든 같은 발신 계약으로 답합니다.</p>
+        <h2 data-i18n="hw.h2">고객 한 마디가 답장이 되기까지</h2>
+        <p data-i18n="hw.p">카카오톡에서 고객이 말을 걸면 TalkBridge 가 서명된 이벤트로 알리고, 사람이든 AI 든 같은 발신 계약으로 답합니다.</p>
 
         <div class="flow-diagram">
           <div class="flow-stage">
             <span class="flow-stage-label">Trigger</span>
             <div class="flow-triggers">
-              <div class="flow-trigger-pill">고객 메시지</div>
-              <div class="flow-trigger-pill">상담 연결</div>
-              <div class="flow-trigger-pill">세션 만료 · 종료</div>
+              <div class="flow-trigger-pill" data-i18n="hw.tr1">고객 메시지</div>
+              <div class="flow-trigger-pill" data-i18n="hw.tr2">상담 연결</div>
+              <div class="flow-trigger-pill" data-i18n="hw.tr3">세션 만료 · 종료</div>
             </div>
           </div>
           <div class="flow-arrow"><svg viewBox="0 0 32 12" fill="none"><line x1="0" y1="6" x2="26" y2="6" stroke="currentColor" stroke-width="1.5"></line><polygon points="26,2 32,6 26,10" fill="currentColor"></polygon></svg></div>
@@ -767,41 +802,41 @@
             <span class="flow-stage-label">Bridge</span>
             <div class="flow-node flow-node-agent">
               <h4>TalkBridge</h4>
-              <p>서명 웹훅 · seq 순서<br>at-least-once 재시도</p>
+              <p data-i18n="hw.bridge">서명 웹훅 · seq 순서<br>at-least-once 재시도</p>
             </div>
           </div>
           <div class="flow-arrow"><svg viewBox="0 0 32 12" fill="none"><line x1="0" y1="6" x2="26" y2="6" stroke="currentColor" stroke-width="1.5"></line><polygon points="26,2 32,6 26,10" fill="currentColor"></polygon></svg></div>
           <div class="flow-stage">
             <span class="flow-stage-label">Decision</span>
-            <div class="flow-diamond"><div class="flow-diamond-shape"></div><span class="flow-diamond-text">AI 가<br>답할 수 있나?</span></div>
+            <div class="flow-diamond"><div class="flow-diamond-shape"></div><span class="flow-diamond-text" data-i18n="hw.dia">AI 가<br>답할 수 있나?</span></div>
           </div>
           <div class="flow-arrow"><svg viewBox="0 0 32 12" fill="none"><line x1="0" y1="6" x2="26" y2="6" stroke="currentColor" stroke-width="1.5"></line><polygon points="26,2 32,6 26,10" fill="currentColor"></polygon></svg></div>
           <div class="flow-stage">
             <span class="flow-stage-label">Action</span>
             <div class="flow-branch-row">
-              <div class="flow-node" style="border-color: rgba(0,212,170,.3);"><span class="flow-branch-label yes">Yes &rarr;</span><p>AI Agent 가 답장<br>(MCP · 스킬 · API)</p></div>
-              <div class="flow-node"><span class="flow-branch-label no">No &rarr;</span><p>상담원에게 이관<br>(CLI 게이트웨이 → Discord · Slack · 웹)</p></div>
+              <div class="flow-node" style="border-color: rgba(0,212,170,.3);"><span class="flow-branch-label yes">Yes &rarr;</span><p data-i18n="hw.yes">AI Agent 가 답장<br>(MCP · 스킬 · API)</p></div>
+              <div class="flow-node"><span class="flow-branch-label no">No &rarr;</span><p data-i18n="hw.no">상담원에게 이관<br>(CLI 게이트웨이 → Discord · Slack · 웹)</p></div>
             </div>
           </div>
           <div class="flow-arrow"><svg viewBox="0 0 32 12" fill="none"><line x1="0" y1="6" x2="26" y2="6" stroke="currentColor" stroke-width="1.5"></line><polygon points="26,2 32,6 26,10" fill="currentColor"></polygon></svg></div>
           <div class="flow-stage">
             <span class="flow-stage-label">Result</span>
             <div class="flow-node flow-node-result">
-              <h4>고객 카카오톡</h4>
-              <p>답장 도착 · agent echo 로<br>발신 확인 · 그래프에 적재</p>
+              <h4 data-i18n="hw.result.h">고객 카카오톡</h4>
+              <p data-i18n="hw.result">답장 도착 · agent echo 로<br>발신 확인 · 그래프에 적재</p>
             </div>
           </div>
         </div>
 
         <div class="flow-mobile">
           <div class="flow-mobile-steps">
-            <div class="flow-mobile-step"><div class="flow-mobile-num">1</div><div class="flow-mobile-text"><h4>고객이 말을 건다</h4><p>카카오톡 상담톡 — 메시지, 상담 연결, 세션 만료</p></div></div>
+            <div class="flow-mobile-step"><div class="flow-mobile-num">1</div><div class="flow-mobile-text" data-i18n="hw.m1"><h4>고객이 말을 건다</h4><p>카카오톡 상담톡 — 메시지, 상담 연결, 세션 만료</p></div></div>
             <div class="flow-mobile-connector"></div>
-            <div class="flow-mobile-step"><div class="flow-mobile-num">2</div><div class="flow-mobile-text"><h4>TalkBridge 가 알린다</h4><p>HMAC 서명 웹훅, seq 순서, at-least-once 재시도</p></div></div>
+            <div class="flow-mobile-step"><div class="flow-mobile-num">2</div><div class="flow-mobile-text" data-i18n="hw.m2"><h4>TalkBridge 가 알린다</h4><p>HMAC 서명 웹훅, seq 순서, at-least-once 재시도</p></div></div>
             <div class="flow-mobile-connector"></div>
-            <div class="flow-mobile-step"><div class="flow-mobile-num">3</div><div class="flow-mobile-text"><h4>누가 답할지 정한다</h4><p>AI 가 답할 수 있으면 자동 답장, 아니면 상담원 채널로 이관</p></div></div>
+            <div class="flow-mobile-step"><div class="flow-mobile-num">3</div><div class="flow-mobile-text" data-i18n="hw.m3"><h4>누가 답할지 정한다</h4><p>AI 가 답할 수 있으면 자동 답장, 아니면 상담원 채널로 이관</p></div></div>
             <div class="flow-mobile-connector"></div>
-            <div class="flow-mobile-step"><div class="flow-mobile-num">4</div><div class="flow-mobile-text"><h4>고객에게 도착</h4><p>같은 발신 계약으로 답장, agent echo 로 확인, 지식 그래프에 적재</p></div></div>
+            <div class="flow-mobile-step"><div class="flow-mobile-num">4</div><div class="flow-mobile-text" data-i18n="hw.m4"><h4>고객에게 도착</h4><p>같은 발신 계약으로 답장, agent echo 로 확인, 지식 그래프에 적재</p></div></div>
           </div>
         </div>
       </div>
@@ -812,9 +847,9 @@
       <div class="autoreply-inner reveal">
         <div class="autoreply-head">
           <p class="section-label">Sample 04 · Auto-Reply Bot</p>
-          <span class="live-pill"><i></i> 실채널 · 실발신 실상담 시뮬레이션</span>
-          <h2>상담원보다 먼저 받고,<br>두 번째 답장부터 맥락을 잇는 자동응대봇</h2>
-          <p>
+          <span class="live-pill"><i></i> <span data-i18n="ar.pill">실채널 · 실발신 실상담 시뮬레이션</span></span>
+          <h2 data-i18n="ar.h2">상담원보다 먼저 받고,<br>두 번째 답장부터 맥락을 잇는 자동응대봇</h2>
+          <p data-i18n="ar.p">
             응대 규칙은 코드가 아니라 웹 화면에서 만듭니다 — 봇 페르소나, 대응 지식, 그리고 "이런 문의면 이 순서로" 진행하는 간단 시나리오.
             CLI 게이트웨이로 받은 고객 메시지를 같은 상담 세션의 이력·진행 상태와 함께 OpenAI 에 넘기고, 답장은 CLI <code class="inline">send</code> 로 돌려보냅니다.
             아래는 톡브릿지 내부에서 <strong>실제 카카오톡 채널로 문의</strong>하고 이 샘플이 <strong>실발신으로 자동응대</strong>한 결과입니다.
@@ -824,44 +859,44 @@
         <div class="autoreply-grid">
           <div class="autoreply-shot">
             <figure>
-              <img src="assets/screenshot-autoreply.png" data-lightbox alt="자동응대봇 실시간 모니터 — 카카오톡 고객의 요금 문의에 봇이 규모를 묻고, 250명이라는 답을 기억해 Pro 300 요금제를 추천한 실발신 장면" width="1440" height="860" loading="lazy">
-              <figcaption>실시간 모니터 — 방별 봇 상태 <code class="inline">요금제 안내 2/3 · 월예상고객수=250명</code>, 오른쪽은 발신됨·응답시간·판단 근거가 쌓이는 봇 활동 로그.</figcaption>
+              <img src="assets/screenshot-autoreply.png" data-lightbox alt="자동응대봇 실시간 모니터 — 카카오톡 고객의 요금 문의에 봇이 규모를 묻고, 250명이라는 답을 기억해 Pro 300 요금제를 추천한 실발신 장면" width="1440" height="860" loading="lazy" data-i18n-attr="alt:ar.alt">
+              <figcaption data-i18n="ar.cap">실시간 모니터 — 방별 봇 상태 <code class="inline">요금제 안내 2/3 · 월예상고객수=250명</code>, 오른쪽은 발신됨·응답시간·판단 근거가 쌓이는 봇 활동 로그.</figcaption>
             </figure>
           </div>
 
-          <div class="chat-card" aria-label="실상담 시뮬레이션 대화">
-            <div class="chat-card-head"><span>kakao · 실발신</span><b>gpt-5.6-terra · medium</b></div>
+          <div class="chat-card" aria-label="실상담 시뮬레이션 대화" data-i18n-attr="aria-label:ar.chat">
+            <div class="chat-card-head"><span data-i18n="ar.chathead">kakao · 실발신</span><b>gpt-5.6-terra · medium</b></div>
             <div class="chat-body">
               <div class="bub in">안녕하세요</div>
               <div class="bub out">안녕하세요, 브릿지봇입니다. 무엇을 도와드릴까요?</div>
-              <div class="bub-meta out">#35 · 인사 · <em>3.3s</em></div>
+              <div class="bub-meta out" data-i18n="ar.m1">#35 · 인사 · <em>3.3s</em></div>
               <div class="bub in">요금이 궁금해요</div>
               <div class="bub out">요금제 안내를 도와드릴게요. 한 달에 대략 몇 명의 고객을 상담할 예정이신가요?</div>
-              <div class="bub-meta out">#37 · 요금제 안내 <em>1/3</em> · 3.1s</div>
+              <div class="bub-meta out" data-i18n="ar.m2">#37 · 요금제 안내 <em>1/3</em> · 3.1s</div>
               <div class="bub in">한달 250명정도?</div>
               <div class="bub out">하루에 응대한 고객 1명당 1건으로 계산돼요. 월 250명 규모라면 Pro 300을 추천드려요. 월 45,000원이며 VAT 포함 49,500원이고, 300건까지 이용할 수 있어요.</div>
-              <div class="bub-meta out">#39 · 요금제 안내 <em>2/3</em> · 월예상고객수=250명 · 3.6s</div>
+              <div class="bub-meta out" data-i18n="ar.m3">#39 · 요금제 안내 <em>2/3</em> · 월예상고객수=250명 · 3.6s</div>
             </div>
           </div>
         </div>
 
         <div class="autoreply-points">
-          <div class="ar-point">
+          <div class="ar-point" data-i18n="ar.pt1">
             <h3>규칙은 웹에서</h3>
             <p>페르소나 · 대응 지식 카드 · 시나리오 플로우(의도 → 단계 → 완료 후 계속/상담원 연결/종료)를 화면에서 편집하고, 카카오 발신 없는 시뮬레이터로 먼저 다듬습니다.</p>
           </div>
-          <div class="ar-point">
+          <div class="ar-point" data-i18n="ar.pt2">
             <h3>맥락은 매 턴 이어서</h3>
             <p>"250명정도?" 같은 짧은 답을 직전 질문의 대답으로 받아 다음 단계로. 주제가 바뀌면 시나리오를 전환하고, 이미 받은 정보는 다시 묻지 않습니다. 금액은 지식에 넣은 값만 씁니다.</p>
           </div>
-          <div class="ar-point">
+          <div class="ar-point" data-i18n="ar.pt3">
             <h3>자동응답 사고를 막는 가드</h3>
             <p>내 발신 <code class="inline">agent</code> echo 무한 루프 차단, 게이트웨이 재기동 시 과거 문의 일괄 답장 차단, 사람이 답하면 그 방의 봇 정지, dry-run 기본. 의존성 0 · 공인 도메인 불필요.</p>
           </div>
         </div>
 
         <div class="section-cta">
-          <a href="https://github.com/BlumnAI-Playground/talk-bridge/tree/main/sample-project/04-cli-autoreply-bot" class="btn btn-ghost" target="_blank" rel="noopener">샘플 04 자동응대봇 보기 &rarr;</a>
+          <a href="https://github.com/BlumnAI-Playground/talk-bridge/tree/main/sample-project/04-cli-autoreply-bot" class="btn btn-ghost" target="_blank" rel="noopener" data-i18n="ar.cta">샘플 04 자동응대봇 보기 &rarr;</a>
         </div>
       </div>
     </section>
@@ -870,42 +905,59 @@
     <section class="features" id="features">
       <div class="features-inner reveal">
         <p class="section-label">Features</p>
-        <h2>무엇이 들어 있나</h2>
+        <h2 data-i18n="ft.h2">무엇이 들어 있나</h2>
         <div class="feature-grid">
           <div class="feature-card">
             <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg></div>
-            <h3>브랜드 키 하나, 세 갈래</h3>
-            <p>CLI · MCP · API 가 같은 브랜드 키와 같은 대화 흐름을 씁니다. 터미널에서 검증한 것을 AI 앱에 붙이고, 서버로 옮겨도 모델이 바뀌지 않습니다.</p>
+            <h3 data-i18n="ft.c1.h">브랜드 키 하나, 세 갈래</h3>
+            <p data-i18n="ft.c1.p">CLI · MCP · API 가 같은 브랜드 키와 같은 대화 흐름을 씁니다. 터미널에서 검증한 것을 AI 앱에 붙이고, 서버로 옮겨도 모델이 바뀌지 않습니다.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg></div>
-            <h3>AI 와 쓰는 CLI</h3>
-            <p>전역 <code class="inline">--json</code> 으로 REST 와 같은 필드명을 한 줄로 돌려줍니다. 스크립트, 에이전트, Claude Code 같은 코딩 도구가 파싱 없이 바로 씁니다. <code class="inline">env --json</code> 이 런처 경로까지 알려줍니다.</p>
+            <h3 data-i18n="ft.c2.h">AI 와 쓰는 CLI</h3>
+            <p data-i18n="ft.c2.p">전역 <code class="inline">--json</code> 으로 REST 와 같은 필드명을 한 줄로 돌려줍니다. 스크립트, 에이전트, Claude Code 같은 코딩 도구가 파싱 없이 바로 씁니다. <code class="inline">env --json</code> 이 런처 경로까지 알려줍니다.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
-            <h3>MCP — 코드 없이 AI 앱에서</h3>
-            <p><a href="https://api.talkbridge.io/mcp/intro/" target="_blank" rel="noopener">MCP 커넥터</a> 주소 하나를 ChatGPT · Claude 에 붙이고 구글 로그인하면 끝. "지금 상담 중인 고객 보여줘", "그 고객에게 답장 보내줘" 로 채널 연결부터 응대까지 AI 가 수행합니다.</p>
+            <h3 data-i18n="ft.c3.h">MCP — 코드 없이 AI 앱에서</h3>
+            <p data-i18n="ft.c3.p"><a href="https://api.talkbridge.io/mcp/intro/" target="_blank" rel="noopener">MCP 커넥터</a> 주소 하나를 ChatGPT · Claude 에 붙이고 구글 로그인하면 끝. "지금 상담 중인 고객 보여줘", "그 고객에게 답장 보내줘" 로 채널 연결부터 응대까지 AI 가 수행합니다.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
-            <h3>서명 웹훅 · at-least-once</h3>
-            <p>HMAC-SHA256 서명, <code class="inline">X-Bridge-Delivery-Id</code> 멱등 키, 단조증가 <code class="inline">seq</code>. 호스티드 게이트웨이는 원장에 영속되어 재기동 후에도 재시도합니다. 서버가 해야 할 5단계가 문서에 있습니다.</p>
+            <h3 data-i18n="ft.c4.h">서명 웹훅 · at-least-once</h3>
+            <p data-i18n="ft.c4.p">HMAC-SHA256 서명, <code class="inline">X-Bridge-Delivery-Id</code> 멱등 키, 단조증가 <code class="inline">seq</code>. 호스티드 게이트웨이는 원장에 영속되어 재기동 후에도 재시도합니다. 서버가 해야 할 5단계가 문서에 있습니다.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg></div>
-            <h3>도메인 없이 수신 — 게이트웨이</h3>
-            <p><code class="inline">talkbridge gateway start</code> 가 내 쪽에서 밖으로 붙어 상담을 Discord · Slack · 로컬 웹훅으로 팬아웃합니다. 공인 도메인·TLS·방화벽 없이 노트북과 사내망에서 바로 상담을 받습니다.</p>
+            <h3 data-i18n="ft.c5.h">도메인 없이 수신 — 게이트웨이</h3>
+            <p data-i18n="ft.c5.p"><code class="inline">talkbridge gateway start</code> 가 내 쪽에서 밖으로 붙어 상담을 Discord · Slack · 로컬 웹훅으로 팬아웃합니다. 공인 도메인·TLS·방화벽 없이 노트북과 사내망에서 바로 상담을 받습니다.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"></circle><circle cx="19" cy="6" r="2"></circle><circle cx="12" cy="18" r="2"></circle><path d="M7 6h10M6.5 8l4 8M17.5 8l-4 8"></path></svg></div>
-            <h3>상담지식 온톨로지 · AI 상담원</h3>
-            <p>게이트웨이가 상담을 고객→문의→응답 그래프로 적재하고 <code class="inline">knowledge search</code> 로 Cypher·자연어 조회. AI 프로바이더를 켜면 엔티티 추출과 <a href="https://api.talkbridge.io/guides/bridge-skills/" target="_blank" rel="noopener">스킬 기반 AI 상담원</a>까지 — 온디바이스로 실험합니다.</p>
+            <h3 data-i18n="ft.c6.h">상담지식 온톨로지 · AI 상담원</h3>
+            <p data-i18n="ft.c6.p">게이트웨이가 상담을 고객→문의→응답 그래프로 적재하고 <code class="inline">knowledge search</code> 로 Cypher·자연어 조회. AI 프로바이더를 켜면 엔티티 추출과 <a href="https://api.talkbridge.io/guides/bridge-skills/" target="_blank" rel="noopener">스킬 기반 AI 상담원</a>까지 — 온디바이스로 실험합니다.</p>
+          </div>
+          <div class="feature-card feature-wide" id="jev">
+            <div class="jev-text">
+              <div class="jev-head"><div class="feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></div><span class="new-pill" data-i18n="jev.pill">NEW · Sample 05</span></div>
+              <h3 data-i18n="jev.h">Jev 활용 — 쓰지 않고 고르는 AI 로 0.2초 자동응대</h3>
+              <p data-i18n="jev.p">TypeSafe 의 System One 모델 <a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev" target="_blank" rel="noopener">Jev</a> 는 답장을 생성하지 않고 FAQ 카드 · 시나리오 선택지 중에서 <strong>고릅니다</strong>. 고객에게 나가는 글은 전부 웹에서 써 둔 문구라 없는 말을 지어낼 수 없고, 매 턴 주는 <strong>확신도</strong>로 자동 답변 · 되묻기 · 상담원 연결을 가릅니다. 의도 · 시나리오 대답 · 상담원 요청 · 불만도를 한 번의 요청으로 병렬 판정합니다.</p>
+              <ul class="jev-stats">
+                <li><b>98%</b><span data-i18n="jev.s1">한국어 의도 판정 · 단계 대답 100%</span></li>
+                <li><b>0</b><span data-i18n="jev.s2">자동 답변 오답 (평가 67건)</span></li>
+                <li><b>205ms</b><span data-i18n="jev.s3">턴당 판정 p50 · ≈ $0.00012</span></li>
+              </ul>
+              <a href="https://github.com/BlumnAI-Playground/talk-bridge/tree/main/sample-project/05-cli-jev-faq-bot" class="jev-link" target="_blank" rel="noopener" data-i18n="jev.cta">샘플 05 Jev 자동응대봇 보기 &rarr;</a>
+            </div>
+            <figure class="jev-shot">
+              <img src="assets/screenshot-jev.png" data-lightbox data-i18n-attr="alt:jev.alt" alt="Jev 자동응대봇 — 선택지형 시나리오 편집기, 시뮬레이터 대화, 확률 막대와 확신도가 보이는 Jev 판정 패널" width="2880" height="1800" loading="lazy">
+              <figcaption data-i18n="jev.cap">"한달 250명정도?" → Jev 가 <code class="inline">월 101~300명</code> 98% 로 분류 · 턴당 0.2초</figcaption>
+            </figure>
           </div>
         </div>
         <div class="section-cta">
-          <p style="color:var(--mute-light);font-size:.95rem;margin-bottom:16px;">채널 · CRM · AI · 지식은 설치 후 <code class="inline">talkbridge setup</code> 에서 켭니다.</p>
-          <a href="https://api.talkbridge.io/cli/setup/" class="btn btn-ghost" target="_blank" rel="noopener">talkbridge setup 으로 설정하기 &rarr;</a>
+          <p style="color:var(--mute-light);font-size:.95rem;margin-bottom:16px;" data-i18n="ft.cta.p">채널 · CRM · AI · 지식은 설치 후 <code class="inline">talkbridge setup</code> 에서 켭니다.</p>
+          <a href="https://api.talkbridge.io/cli/setup/" class="btn btn-ghost" target="_blank" rel="noopener" data-i18n="ft.cta">talkbridge setup 으로 설정하기 &rarr;</a>
         </div>
       </div>
     </section>
@@ -914,23 +966,23 @@
     <section class="ecosystem">
       <div class="ecosystem-inner reveal">
         <p class="section-label">Three Ways In</p>
-        <h2>세 갈래, 하나의 브릿지</h2>
-        <p>누가 쓰느냐에 따라 진입점만 다릅니다. 브랜드 키, 대화 흐름, 필드명은 전부 같습니다.</p>
+        <h2 data-i18n="eco.h2">세 갈래, 하나의 브릿지</h2>
+        <p data-i18n="eco.p">누가 쓰느냐에 따라 진입점만 다릅니다. 브랜드 키, 대화 흐름, 필드명은 전부 같습니다.</p>
         <div class="eco-items">
           <a href="https://api.talkbridge.io/cli/install/" class="eco-item" target="_blank" rel="noopener">
-            <span class="eco-for">개발자 · 자동화</span>
+            <span class="eco-for" data-i18n="eco.for1">개발자 · 자동화</span>
             <h3>talkbridge CLI</h3>
-            <p>로그인 한 번으로 상담 조회·발신·삭제·차단·설정. 게이트웨이 데몬이 Discord · Slack · 웹훅 · 온톨로지 싱크로 팬아웃. TUI 마법사, <code class="inline">--json</code>, 5개 플랫폼 바이너리.</p>
+            <p data-i18n="eco.p1">로그인 한 번으로 상담 조회·발신·삭제·차단·설정. 게이트웨이 데몬이 Discord · Slack · 웹훅 · 온톨로지 싱크로 팬아웃. TUI 마법사, <code class="inline">--json</code>, 5개 플랫폼 바이너리.</p>
           </a>
           <a href="https://api.talkbridge.io/mcp/intro/" class="eco-item" target="_blank" rel="noopener">
-            <span class="eco-for">비개발자 · AI 앱</span>
+            <span class="eco-for" data-i18n="eco.for2">비개발자 · AI 앱</span>
             <h3>MCP connector</h3>
-            <p><code class="inline">mcp.talkbridge.io/mcp</code> 를 ChatGPT · Claude Desktop 에 붙이면 채널 온보딩, 상담 조회, 답장, 차단을 자연어로. 내 파트너 계정의 브랜드만 봅니다.</p>
+            <p data-i18n="eco.p2"><code class="inline">mcp.talkbridge.io/mcp</code> 를 ChatGPT · Claude Desktop 에 붙이면 채널 온보딩, 상담 조회, 답장, 차단을 자연어로. 내 파트너 계정의 브랜드만 봅니다.</p>
           </a>
           <a href="https://api.talkbridge.io/api/outbound/" class="eco-item" target="_blank" rel="noopener">
-            <span class="eco-for">서버 · 프로덕션 통합</span>
+            <span class="eco-for" data-i18n="eco.for3">서버 · 프로덕션 통합</span>
             <h3>Developer API</h3>
-            <p><code class="inline">api.talkbridge.io</code> REST 발신 + 서명 웹훅 수신. 호스티드 게이트웨이가 영속·재시도를 맡고, 파트너는 2xx 와 멱등만 챙기면 됩니다. 스코프별 Agent 키.</p>
+            <p data-i18n="eco.p3"><code class="inline">api.talkbridge.io</code> REST 발신 + 서명 웹훅 수신. 호스티드 게이트웨이가 영속·재시도를 맡고, 파트너는 2xx 와 멱등만 챙기면 됩니다. 스코프별 Agent 키.</p>
           </a>
         </div>
       </div>
@@ -939,18 +991,18 @@
     <!-- Community -->
     <section class="community">
       <div class="community-inner reveal">
-        <div class="terminal about-terminal" role="img" aria-label="TalkBridge 는 소규모 전문팀이 필요한 AI Agent 를 직접 설계할 수 있도록 다양한 샘플 코드를 만들어 지원합니다. 완성된 Agent 를 제공하는 것이 아니라, 고객사의 Agent 를 위해 준비합니다. Ready For Your Agent.">
+        <div class="terminal about-terminal" role="img" aria-label="TalkBridge 는 소규모 전문팀이 필요한 AI Agent 를 직접 설계할 수 있도록 다양한 샘플 코드를 만들어 지원합니다. 완성된 Agent 를 제공하는 것이 아니라, 고객사의 Agent 를 위해 준비합니다. Ready For Your Agent." data-i18n-attr="aria-label:about.aria">
           <div class="terminal-chrome" aria-hidden="true">
             <span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span>
             <span class="terminal-title">talkbridge — about</span>
           </div>
           <div class="terminal-body about-body" aria-hidden="true" data-typer>
             <div class="about-line cmd-line"><span class="prompt">$ </span><span class="cmd">talkbridge --about</span></div>
-            <div class="about-line">TalkBridge 는 소규모 전문팀이</div>
-            <div class="about-line">필요한 AI Agent 를 직접 설계할 수 있도록</div>
-            <div class="about-line">다양한 샘플 코드를 만들어 지원합니다.</div>
-            <div class="about-line gap">완성된 Agent 를 제공하는 것이 아니라,</div>
-            <div class="about-line">고객사의 Agent 를 위해 준비합니다.</div>
+            <div data-i18n="about.1" class="about-line">TalkBridge 는 소규모 전문팀이</div>
+            <div data-i18n="about.2" class="about-line">필요한 AI Agent 를 직접 설계할 수 있도록</div>
+            <div data-i18n="about.3" class="about-line">다양한 샘플 코드를 만들어 지원합니다.</div>
+            <div data-i18n="about.4" class="about-line gap">완성된 Agent 를 제공하는 것이 아니라,</div>
+            <div data-i18n="about.5" class="about-line">고객사의 Agent 를 위해 준비합니다.</div>
             <div class="about-line cmd-line"><span class="prompt">$ </span><span class="cmd">echo $SLOGAN</span></div>
             <div class="about-line slogan">Ready For Your Agent</div>
           </div>
@@ -958,7 +1010,7 @@
         <div class="community-stats" aria-live="polite">
           <a class="stat-pill" href="https://github.com/BlumnAI-Playground/talk-bridge/tags" target="_blank" rel="noopener" data-stat="release" hidden>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-            <span class="stat-label">샘플 최신 태그</span><span class="stat-value" data-release>&mdash;</span>
+            <span class="stat-label" data-i18n="cm.tag">샘플 최신 태그</span><span class="stat-value" data-release>&mdash;</span>
           </a>
         </div>
         <div class="social-tiles">
@@ -976,12 +1028,16 @@
           </a>
           <a href="https://api.talkbridge.io/support/" class="social-tile" target="_blank" rel="noopener">
             <svg class="stroke" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-            기술 문의
+            <span data-i18n="cm.support">기술 문의</span>
           </a>
         </div>
         <div class="powered-by">
           <span class="powered-label">Powered by</span>
-          <span class="powered-tech">.NET</span>
+          <div class="powered-techs">
+            <span class="powered-tech">.NET</span>
+            <span class="powered-sep" aria-hidden="true">+</span>
+            <a class="powered-tech akka" href="https://petabridge.com/" target="_blank" rel="noopener">Akka.NET</a>
+          </div>
         </div>
       </div>
     </section>
@@ -994,7 +1050,7 @@
       </div>
       <div class="footer-right">
         &copy; 2026 <a href="https://blumn.ai/" target="_blank" rel="noopener">Blumn AI</a>
-        &middot; <a href="https://github.com/BlumnAI-Playground/talk-bridge" target="_blank" rel="noopener">파트너 연동 가이드 · 샘플</a>
+        &middot; <a href="https://github.com/BlumnAI-Playground/talk-bridge" target="_blank" rel="noopener" data-i18n="footer.guide">파트너 연동 가이드 · 샘플</a>
         &middot; <a href="https://github.com/BlumnAI-Playground/talk-bridge/releases/tag/__VERSION__" target="_blank" rel="noopener"><code>__VERSION__</code></a> · __BUILD_DATE__
       </div>
     </div>
@@ -1020,7 +1076,7 @@
           (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function () {
             b.classList.add('copied'); b.innerHTML = CHECK;
             setTimeout(function () { b.classList.remove('copied'); b.innerHTML = COPY; }, 1500);
-          }).catch(function () { window.prompt('복사:', text); });
+          }).catch(function () { window.prompt(document.documentElement.lang === 'en' ? 'Copy:' : '복사:', text); });
         });
       });
       // 라이트박스 — data-lightbox 이미지를 크게
@@ -1037,38 +1093,206 @@
         var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } }); }, { threshold: 0.08 });
         document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
       } else { document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('visible'); }); }
+      // ── 한 / 영 전환 ────────────────────────────────────────────────
+      // 한국어는 HTML 원문이 기준이다. data-i18n="키" 요소의 원문을 기억해 두고, EN 이면 아래 사전으로 바꿔 끼운다.
+      // 사전에 없는 키는 한국어로 남긴다(콘솔 경고). 선택은 localStorage → ?lang= → 브라우저 언어 순.
+      var EN = {
+        'meta.title': 'TalkBridge — KakaoTalk consultation chat via CLI · MCP · API',
+        'meta.desc': 'A bridge that connects KakaoTalk consultation chat to your terminal, AI apps and servers. TalkBridge CLI at the center, with an MCP connector and a Developer API on the same brand key.',
+        'skip': 'Skip to content',
+        'nav.search': 'Search docs',
+        'hero.pill': 'CLI · MCP · API — one brand key',
+        'hero.h1': 'Customer chat for the AI era,<br> in your terminal.',
+        'hero.desc': 'The bridge that wires KakaoTalk consultation chat into your terminal, AI apps and servers. TalkBridge absorbs the channel complexity — partner contracts, delivery specs, retries — and you handle just <strong>two contracts: an inbound webhook and an outbound API</strong>. At the center is a CLI built to be used with AI.',
+        'hero.proof': 'Made by <a href="https://talkbridge.io/" target="_blank" rel="noopener">TalkBridge</a>, which builds KakaoTalk consultation integrations · Public docs <a href="https://api.talkbridge.io/" target="_blank" rel="noopener">api.talkbridge.io</a>',
+        'hero.t1': '# browser login → brand key saved automatically',
+        'hero.t2': '[{"userKey":"kakao:Uabc123","lastText":"When will my order arrive?"}]',
+        'hero.t3': 'send --brand mybrand --to kakao:Uabc123 --text "Arriving tomorrow"',
+        'hero.t4': '# fan out chats to Discord · Slack · webhooks',
+        'gs.h2': 'Send your first reply in two minutes',
+        'gs.tabs': 'Connection type',
+        'gs.tab.samples': 'Samples',
+        'gs.note.cli': 'Node 18+. Binaries for Windows · macOS (Intel/Apple Silicon) · Linux (x64/arm64) ship inside the npm package — nothing else to download. The developer dev channel is <code>@blumn-dev/talkbridge-cli</code>.',
+        'gs.note.mcp': 'No code. Paste this address into ChatGPT <em>Settings → Connectors → Add → MCP server</em> or Claude Desktop <em>Settings → Connectors → Add Custom Connector</em>, sign in once with Google, and you are done. No keys or passwords. → <a href="https://api.talkbridge.io/mcp/connect/" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none">Connection guide</a>',
+        'gs.note.api': 'Send over REST with an Agent key (BrandWrite) issued in TalkBridge Center; receive via signed webhooks (HMAC-SHA256). Field names match CLI <code>--json</code>, so what you build with the CLI moves to your server as is. → <a href="https://api.talkbridge.io/authentication/" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none">Authentication</a> · <a href="https://api.talkbridge.io/api/outbound/" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none">Outbound API</a> · <a href="https://api.talkbridge.io/webhooks/setup/" target="_blank" rel="noopener" style="color:var(--teal);text-decoration:none">Webhooks</a>',
+        'gs.note.samples': 'Five zero-dependency Node samples — 01 CLI chat console, 02 REST + hosted webhooks, 03 consultation knowledge graph, 04 <a href="#autoreply" style="color:var(--teal);text-decoration:none">auto-reply bot</a> (web-configured rules + OpenAI context), 05 <a href="#jev" style="color:var(--teal);text-decoration:none">Jev auto-reply bot</a> (an AI that selects · 0.2 s decisions). Field-verified reference implementations — copy them and adapt to your customers.',
+        'gs.code2': '<span class="code-cmd">talkbridge</span> rooms --brand &lt;key&gt; --json <span class="code-flag">&amp;&amp;</span> <span class="code-cmd">talkbridge</span> send --brand &lt;key&gt; --to &lt;userKey&gt; --text "Hello"',
+        'gs.copy2': 'talkbridge rooms --brand <key> --json && talkbridge send --brand <key> --to <userKey> --text "Hello"',
+        'gs.then3': 'Then (channels · AI · knowledge)',
+        'gs.step1': 'Sign in with your partner account in the browser, pick a brand, and a BrandWrite key is issued and saved with a single 5-digit code. When <code>whoami</code> lists your allowed brands, you are ready.',
+        'gs.step2': 'Get rooms as JSON and reply to a customer in an active session. One <code>userKey</code> carries the conversation, and each send consumes consultation credits. → <a href="https://api.talkbridge.io/cli/commands/" target="_blank" rel="noopener">All commands</a>',
+        'gs.step3': 'Turn on Discord · Slack · webhook sinks, customer notes (CRM), an AI provider and the consultation-knowledge ontology in the TUI wizard. The gateway connects <em>outward from your side</em>, so chats arrive on a laptop without a public domain or TLS. → <a href="https://api.talkbridge.io/cli/gateway/" target="_blank" rel="noopener">Gateway</a>',
+        'pb.h2': 'Chat channels are heavy. AI is already fast.',
+        'pb.p1': 'Connecting KakaoTalk consultation chat yourself meant partner contracts, delivery specs, session limits, retries and ordering — all on you. You were worn out before adding an AI agent.',
+        'pb.p2': 'TalkBridge absorbs that complexity <em>inside the bridge</em>. What is left for you is two contracts — a <em>signed inbound webhook</em> and an <em>outbound API</em> — and three ways, <em>CLI · MCP · API</em>, to use them with the same brand key from a terminal, an AI app or a server.',
+        'pb.alt': 'A chat console built with the TalkBridge CLI gateway — room list, conversation, live inbound log',
+        'zoom': 'Enlarge',
+        'pb.cap': 'A chat console running on a laptop with a single CLI gateway — sample 01, zero dependencies.',
+        'close': 'Close',
+        'hw.h2': 'From one customer message to a reply',
+        'hw.p': 'When a customer writes on KakaoTalk, TalkBridge notifies you with a signed event, and a human or an AI replies through the same outbound contract.',
+        'hw.tr1': 'Customer message',
+        'hw.tr2': 'Chat connected',
+        'hw.tr3': 'Session expired · ended',
+        'hw.bridge': 'Signed webhook · seq order<br>at-least-once retry',
+        'hw.dia': 'Can AI<br>answer?',
+        'hw.yes': 'AI agent replies<br>(MCP · skills · API)',
+        'hw.no': 'Hand off to an agent<br>(CLI gateway → Discord · Slack · web)',
+        'hw.result.h': 'Customer KakaoTalk',
+        'hw.result': 'Reply delivered · confirmed<br>by agent echo · stored in the graph',
+        'hw.m1': '<h4>The customer writes</h4><p>KakaoTalk consultation chat — message, chat connected, session expired</p>',
+        'hw.m2': '<h4>TalkBridge notifies you</h4><p>HMAC-signed webhook, seq order, at-least-once retry</p>',
+        'hw.m3': '<h4>Decide who answers</h4><p>If AI can answer, reply automatically; otherwise hand off to an agent channel</p>',
+        'hw.m4': '<h4>Delivered to the customer</h4><p>Reply through the same outbound contract, confirmed by agent echo, stored in the knowledge graph</p>',
+        'ar.pill': 'Real channel · real sends · live consultation test',
+        'ar.h2': 'An auto-reply bot that answers before your agents<br>and keeps context from the second reply on',
+        'ar.p': 'Reply rules are built in a web screen, not in code — a bot persona, answer knowledge, and simple scenarios that say “for this kind of question, go in this order”. Customer messages received through the CLI gateway go to OpenAI together with the same session’s history and progress, and the reply goes back with CLI <code class="inline">send</code>. Below is the result of <strong>asking a real KakaoTalk channel</strong> from inside TalkBridge while this sample <strong>replied with real sends</strong>.',
+        'ar.alt': 'Auto-reply bot live monitor — for a KakaoTalk customer asking about pricing, the bot asks for volume, remembers the answer “250” and recommends the Pro 300 plan with a real send',
+        'ar.cap': 'Live monitor — per-room bot state <code class="inline">Pricing 2/3 · monthly customers=250</code>; on the right, the bot activity log with sent · latency · reasoning.',
+        'ar.chat': 'Live consultation test conversation',
+        'ar.chathead': 'kakao · real send',
+        'ar.m1': '#35 · greeting · <em>3.3s</em>',
+        'ar.m2': '#37 · pricing <em>1/3</em> · 3.1s',
+        'ar.m3': '#39 · pricing <em>2/3</em> · monthly customers=250 · 3.6s',
+        'ar.pt1': '\n            <h3>Rules on the web</h3>\n            <p>Edit the persona · knowledge cards · scenario flows (intent → steps → then continue / hand off / end) on screen, and refine them first in a simulator that never sends to KakaoTalk.</p>\n          ',
+        'ar.pt2': '\n            <h3>Context, every turn</h3>\n            <p>A short answer like “about 250?” is taken as the answer to the previous question and moves to the next step. When the topic changes the scenario switches, and information already given is never asked again. Prices come only from the knowledge you entered.</p>\n          ',
+        'ar.pt3': '\n            <h3>Guards against auto-reply accidents</h3>\n            <p>Blocks infinite loops on your own <code class="inline">agent</code> echo, blocks bulk replies to old messages when the gateway restarts, stops the bot in a room once a human replies, dry-run by default. Zero dependencies · no public domain needed.</p>\n          ',
+        'ar.cta': 'See sample 04 auto-reply bot &rarr;',
+        'ft.h2': 'What’s inside',
+        'ft.c1.h': 'One brand key, three ways',
+        'ft.c1.p': 'CLI · MCP · API share the same brand key and conversation flow. What you verify in the terminal plugs into an AI app, and moving it to a server does not change the model.',
+        'ft.c2.h': 'A CLI made to use with AI',
+        'ft.c2.p': 'Global <code class="inline">--json</code> returns the same field names as REST on one line. Scripts, agents and coding tools like Claude Code use it without parsing. <code class="inline">env --json</code> even reports the launcher path.',
+        'ft.c3.h': 'MCP — from AI apps, no code',
+        'ft.c3.p': 'Add one <a href="https://api.talkbridge.io/mcp/intro/" target="_blank" rel="noopener">MCP connector</a> address to ChatGPT · Claude and sign in with Google. “Show me the customers in consultation”, “reply to that customer” — the AI handles everything from channel setup to replies.',
+        'ft.c4.h': 'Signed webhooks · at-least-once',
+        'ft.c4.p': 'HMAC-SHA256 signatures, an <code class="inline">X-Bridge-Delivery-Id</code> idempotency key and monotonically increasing <code class="inline">seq</code>. The hosted gateway persists to a ledger and keeps retrying after restarts. The five steps your server must take are documented.',
+        'ft.c5.h': 'Receive without a domain — the gateway',
+        'ft.c5.p': '<code class="inline">talkbridge gateway start</code> connects outward from your side and fans chats out to Discord · Slack · local webhooks. Receive consultations on a laptop or inside a corporate network with no public domain, TLS or firewall changes.',
+        'ft.c6.h': 'Consultation knowledge ontology · AI agent',
+        'ft.c6.p': 'The gateway loads chats into a customer → inquiry → response graph, queryable with Cypher or natural language via <code class="inline">knowledge search</code>. Turn on an AI provider for entity extraction and a <a href="https://api.talkbridge.io/guides/bridge-skills/" target="_blank" rel="noopener">skill-based AI agent</a> — experiment on-device.',
+        'jev.pill': 'NEW · Sample 05',
+        'jev.h': 'Jev — 0.2 s auto-replies with an AI that selects instead of writes',
+        'jev.p': 'TypeSafe’s System One model <a href="https://typesafe.ai/blog/introducing-system-one-models-and-jev" target="_blank" rel="noopener">Jev</a> does not generate replies — it <strong>selects</strong> among FAQ cards and scenario options. Every message sent to the customer is text you wrote on the web, so it cannot make things up, and the <strong>confidence</strong> it returns each turn decides between auto-reply, asking back, or handing off to an agent. Intent, scenario answer, agent request and frustration are judged in parallel in a single request.',
+        'jev.s1': 'Korean intent accuracy · 100% on step answers',
+        'jev.s2': 'wrong auto-replies (67-case eval)',
+        'jev.s3': 'p50 per turn · ≈ $0.00012',
+        'jev.cta': 'See sample 05 Jev auto-reply bot &rarr;',
+        'jev.alt': 'Jev auto-reply bot — option-based scenario editor, simulator conversation, and the Jev decision panel with probability bars and confidence',
+        'jev.cap': '“about 250 a month?” → Jev classifies it as <code class="inline">101–300 / month</code> at 98% · 0.2 s per turn',
+        'ft.cta.p': 'Channels · CRM · AI · knowledge are turned on after install with <code class="inline">talkbridge setup</code>.',
+        'ft.cta': 'Configure with talkbridge setup &rarr;',
+        'eco.h2': 'Three ways in, one bridge',
+        'eco.p': 'Only the entry point differs by who uses it. Brand key, conversation flow and field names are all the same.',
+        'eco.for1': 'Developers · automation',
+        'eco.p1': 'One login to list, send, delete, block and configure consultations. The gateway daemon fans out to Discord · Slack · webhooks · the ontology sink. TUI wizard, <code class="inline">--json</code>, binaries for 5 platforms.',
+        'eco.for2': 'Non-developers · AI apps',
+        'eco.p2': 'Add <code class="inline">mcp.talkbridge.io/mcp</code> to ChatGPT · Claude Desktop for channel onboarding, chat lookup, replies and blocking in natural language. Sees only the brands of your partner account.',
+        'eco.for3': 'Servers · production',
+        'eco.p3': '<code class="inline">api.talkbridge.io</code> REST outbound + signed webhook inbound. The hosted gateway handles persistence and retries; partners only need 2xx and idempotency. Scoped Agent keys.',
+        'about.aria': 'TalkBridge builds and shares a wide range of sample code so small expert teams can design the AI agents they need themselves. We do not ship a finished agent — we prepare for yours. Ready For Your Agent.',
+        'about.1': 'TalkBridge builds a wide range of sample code',
+        'about.2': 'so small expert teams can design',
+        'about.3': 'the AI agents they need themselves.',
+        'about.4': 'We do not ship a finished agent —',
+        'about.5': 'we prepare for yours.',
+        'cm.tag': 'Latest sample tag',
+        'cm.support': 'Tech support',
+        'footer.guide': 'Partner integration guide · samples'
+      };
+      var UI = { ko: { copy: '복사', copyPrompt: '복사:' }, en: { copy: 'Copy', copyPrompt: 'Copy:' } };
+      var KO = {}, KO_ATTR = [], meta = document.querySelector('meta[name="description"]');
+      KO['meta.title'] = document.title; KO['meta.desc'] = meta ? meta.content : '';
+      document.querySelectorAll('[data-i18n]').forEach(function (el) { KO[el.getAttribute('data-i18n')] = el.innerHTML; });
+      document.querySelectorAll('[data-i18n-attr]').forEach(function (el) {
+        el.getAttribute('data-i18n-attr').split(';').forEach(function (pair) {
+          var p = pair.split(':'); KO_ATTR.push({ el: el, attr: p[0], key: p[1], ko: el.getAttribute(p[0]) || '' });
+        });
+      });
+      var lang = 'ko';
+      var t = function (k) { if (lang === 'en' && EN[k] == null) console.warn('[i18n] EN 없음:', k); return lang === 'en' && EN[k] != null ? EN[k] : KO[k]; };
+      var aboutText = function (line) { var k = line.getAttribute('data-i18n'); var s = document.createElement('div'); s.innerHTML = t(k); return s.textContent; };
+      var typerSync = function () {}; // 타이핑 터미널이 정의되면 교체
+      function setLang(next, save) {
+        lang = next === 'en' ? 'en' : 'ko';
+        document.documentElement.lang = lang;
+        document.title = t('meta.title');
+        if (meta) meta.content = t('meta.desc');
+        document.querySelectorAll('[data-i18n]').forEach(function (el) {
+          if (el.classList.contains('about-line')) return; // 타이핑 터미널은 typerSync 가 맡는다
+          el.innerHTML = t(el.getAttribute('data-i18n'));
+        });
+        KO_ATTR.forEach(function (a) { a.el.setAttribute(a.attr, lang === 'en' && EN[a.key] != null ? EN[a.key] : a.ko); });
+        document.querySelectorAll('.copy-btn').forEach(function (b) { b.setAttribute('aria-label', UI[lang].copy); });
+        document.querySelectorAll('.lang-toggle button').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-lang') === lang ? 'true' : 'false'); });
+        typerSync();
+        if (save) {
+          try { localStorage.setItem('tb-lang', lang); } catch (e) { /* 저장 불가 환경 */ }
+          syncUrl();
+        }
+      }
+      document.querySelectorAll('.lang-toggle button').forEach(function (b) {
+        b.addEventListener('click', function () { setLang(b.getAttribute('data-lang'), true); });
+      });
+      // 주소창에 현재 언어를 남긴다 (?lang=en / ?lang=ko) — 새로고침 없이 replaceState, 다른 쿼리·#해시는 보존
+      function syncUrl() {
+        if (!window.history || !history.replaceState) return;
+        var u = new URL(location.href);
+        u.searchParams.set('lang', lang);
+        history.replaceState(history.state, '', u.pathname + u.search + u.hash);
+      }
+
       // 소개 터미널 — 화면에 들어오면 CLI 입력처럼 한 줄씩 타이핑 (모션 줄이기 설정이면 그대로 표시)
+      // 글은 타이핑하는 순간의 언어로 가져온다. 도중에 언어를 바꾸면 타이핑을 멈추고 새 언어로 전부 채운다.
       var typer = document.querySelector('[data-typer]');
       var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (typer && 'IntersectionObserver' in window && !reduce) {
         var cursor = document.createElement('span'); cursor.className = 'terminal-cursor';
         var steps = Array.prototype.map.call(typer.querySelectorAll('.about-line'), function (line) {
           var cmd = line.querySelector('.cmd'), prompt = line.querySelector('.prompt'), target = cmd;
-          var text = (cmd || line).textContent;
+          var fixed = cmd ? cmd.textContent : (line.hasAttribute('data-i18n') ? null : line.textContent);
           if (cmd) cmd.textContent = '';
           else { line.textContent = ''; target = line.appendChild(document.createElement('span')); }
           if (prompt) prompt.style.visibility = 'hidden';
-          return { line: line, target: target, prompt: prompt, text: text, isCmd: !!cmd };
+          return { line: line, target: target, prompt: prompt, text: function () { return fixed != null ? fixed : aboutText(line); }, isCmd: !!cmd };
         });
-        var run = function (i) {
-          if (i >= steps.length) return;
-          var s = steps[i], n = 0;
+        var gen = 0, started = false;
+        var fillAll = function () {
+          gen++;
+          steps.forEach(function (s) { if (s.prompt) s.prompt.style.visibility = ''; s.target.textContent = s.text(); });
+          steps[steps.length - 1].line.appendChild(cursor);
+        };
+        typerSync = function () { if (started) fillAll(); };
+        var run = function (i, g) {
+          if (g !== gen || i >= steps.length) return;
+          var s = steps[i], n = 0, text = s.text();
           if (s.prompt) s.prompt.style.visibility = '';
           s.line.appendChild(cursor);
           (function tick() {
-            if (n < s.text.length) {
-              s.target.textContent = s.text.slice(0, ++n);
+            if (g !== gen) return;
+            if (n < text.length) {
+              s.target.textContent = text.slice(0, ++n);
               setTimeout(tick, s.isCmd ? 70 + Math.random() * 60 : 32);
             } else if (i + 1 < steps.length) {
-              setTimeout(function () { run(i + 1); }, s.isCmd ? 450 : (steps[i + 1].isCmd ? 900 : 220));
+              setTimeout(function () { run(i + 1, g); }, s.isCmd ? 450 : (steps[i + 1].isCmd ? 900 : 220));
             }
           })();
         };
         var tio = new IntersectionObserver(function (es) {
-          if (es[0].isIntersecting) { tio.disconnect(); setTimeout(function () { run(0); }, 300); }
+          if (es[0].isIntersecting) { tio.disconnect(); started = true; setTimeout(function () { run(0, gen); }, 300); }
         }, { threshold: 0.4 });
         tio.observe(typer);
+      } else if (typer) {
+        typerSync = function () { typer.querySelectorAll('.about-line[data-i18n]').forEach(function (l) { l.textContent = aboutText(l); }); };
       }
+
+      // 첫 언어 — 저장값 → ?lang= → 브라우저 언어(한국어가 아니면 EN)
+      var saved = null; try { saved = localStorage.getItem('tb-lang'); } catch (e) { /* 무시 */ }
+      var q = (location.search.match(/[?&]lang=(ko|en)\b/) || [])[1];
+      var initial = q || saved || ((navigator.language || 'ko').toLowerCase().indexOf('ko') === 0 ? 'ko' : 'en');
+      if (initial !== 'ko') setLang(initial, false);
+      // 영어로 열렸는데 주소에 lang 이 없으면(저장값·브라우저 언어로 결정) 주소에도 남긴다 — 그대로 복사해 공유해도 영어로 열린다
+      if (lang === 'en' && !q) syncUrl();
       // 라이브 스탯 — npm CLI 버전, 샘플 최신 태그 (실패하면 그냥 숨김)
       function show(sel, fill) { document.querySelectorAll(sel).forEach(function (el) { fill(el); el.hidden = false; }); }
       fetch('https://registry.npmjs.org/@blumn-ai/talkbridge-cli/latest').then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
