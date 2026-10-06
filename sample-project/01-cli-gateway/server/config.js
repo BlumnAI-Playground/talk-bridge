@@ -64,6 +64,9 @@ export const config = {
 
   /** 상담방 하나당 메모리에 유지할 최대 메시지 수 */
   maxMessagesPerRoom: Number(process.env.TB_MAX_MESSAGES || 200),
+
+  /** 첨부 발신 1회의 파일 합계 상한(MB) — 이 서버가 받아 임시 파일로 CLI 에 넘기는 크기의 상한 */
+  maxUploadBytes: Number(process.env.TB_MAX_UPLOAD_MB || 10) * 1024 * 1024,
 };
 
 export const webhookPath = '/webhook';

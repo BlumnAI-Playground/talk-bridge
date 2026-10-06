@@ -53,11 +53,11 @@
 
 | 파일 | 01 ↔ 02 | 규칙 |
 |---|---|---|
-| `server/signature.js`, `store.js`, `sse.js` | **바이트 단위 동일** | 한쪽을 고치면 반드시 다른 쪽에도 반영. `diff` 로 검수 |
-| `server/webhook.js` | 코드 2줄만 다름 — import (`cli.js` `cliRoomMessages` ↔ `api.js` `roomMessages`) 와 `enrich()` 의 호출 1줄 + 주석의 CLI/REST 표기 | 그 외 로직은 동일해야 한다. `diff` 결과가 이 2줄·주석 외에 있으면 P1 |
-| `public/index.html`, `app.js` | 문구·`/api/me` 필드(`cli` ↔ `apiBase`)만 다름 | 렌더·SSE 로직은 동일 |
+| `server/signature.js`, `store.js`, `sse.js`, `outbox.js`(01·02, 2026-10-06) | **바이트 단위 동일** | 한쪽을 고치면 반드시 다른 쪽에도 반영. `diff` 로 검수 |
+| `server/webhook.js` | 코드 2줄만 다름 — import (`cli.js` `cliRoomMessages` ↔ `api.js` `roomMessages`) 와 `enrich()` 의 호출 1줄 + 주석의 CLI/REST 표기. 2026-10-06 신호 처리(`test:true`·`phase`·`deleted`·`serials`·outbox)는 01·02 **공통** | 그 외 로직은 동일해야 한다. `diff` 결과가 이 2줄·주석 외에 있으면 P1. 03~05 는 아직 구 webhook.js(`deleted` 미처리) — 하향 적용 대기 |
+| `public/index.html`, `app.js`, `style.css` | 문구·`/api/me` 필드(`cli` ↔ `apiBase`)만 다름. `style.css` 는 동일. 첨부 발신·발신 취소·고객 첨부 렌더·echo 5초 재조회는 01·02 공통 | 그 외 렌더·SSE 로직은 동일 |
 | `server/index.js` | 같은 뼈대, 조회·발신 호출부만 CLI ↔ REST | 라우트 표가 README 와 일치해야 한다 |
-| `server/cli.js` ↔ `server/api.js` | 대응 관계 | **반환 모델이 같아야 한다** (`userKey/kind/seq/text/at/direction`, rooms 의 `status/ended/lastSeq/lastText`) |
+| `server/cli.js` ↔ `server/api.js` | 대응 관계 | **반환 모델이 같아야 한다** (`userKey/kind/seq/text/at/direction`, rooms 의 `status/ended/lastSeq/lastText`) + 있을 때만 `serial`·`deleted`·`attachments`. 01 `cli.js` 는 `--json` 우선·텍스트 폴백(텍스트는 본문을 `…` 로 잘라 첨부 불가). `parseAttachments` 는 두 파일에 같은 규칙 |
 
 이 대응이 유지되어야 "01 로 검증하고 02 로 승격" 경로와 "파트너의 커스텀 로직이 그대로 살아남는다" 는 문서 약속이 참이 된다.
 02 의 기본 포트는 8788 (01 은 8787) — 두 샘플을 나란히 띄울 수 있게 하기 위함.

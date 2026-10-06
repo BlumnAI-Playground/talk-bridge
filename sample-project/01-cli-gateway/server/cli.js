@@ -140,9 +140,9 @@ export function runCli(args, { timeoutMs = 20000 } = {}) {
 
 /* ── 출력 파서 ─────────────────────────────────────────────────────────────
  *
- * 이 샘플은 사람이 읽는 텍스트 출력을 파싱한다 — v1.0.0(운영 채널) 과 v1.1.0(연도 포함) 양쪽 형식을 받는다.
- * v1.1.0+ 에는 전역 `--json` 이 있어 파서가 필요 없다(03 샘플이 그렇게 한다). 01 은 v1.0.0 호환을 위해 텍스트를 유지한다.
- * CLI 가 표기를 바꾸면 여기만 고치면 된다.
+ * v1.1.0+ 는 아래 "--json 출력" 절이 먼저 처리하고, 이 텍스트 파서는 --json 이 없는 v1.0.0 폴백이다.
+ * 텍스트는 v1.0.0(운영 채널) 과 v1.1.0(연도 포함) 양쪽 형식을 받는다. 단 긴 본문이 "…" 로 잘리므로
+ * 고객 첨부 URL 은 텍스트 경로에서 온전히 읽히지 않는다. CLI 가 표기를 바꾸면 여기만 고치면 된다.
  */
 
 /** 텍스트 타임스탬프 — v1.1.0+ 는 "2026-09-08 10:28", v1.0.0 은 연도 없는 "09-08 10:28" */
@@ -264,24 +264,125 @@ export function parseHistory(stdout) {
   return out;
 }
 
+/* ── --json 출력 (CLI v1.1.0+) ─────────────────────────────────────────────
+ *
+ * 텍스트 출력은 긴 본문을 "…" 로 자른다 — 고객 사진 URL(서명 쿼리 포함)이 잘려 첨부를 읽을 수 없다.
+ * 그래서 조회·발신은 전역 `--json`(필드명 = REST)을 먼저 쓰고, JSON 이 아니면(v1.0.0) 텍스트 파서로 내려간다.
+ * 반환 모델은 텍스트 파서와 같다(userKey/kind/seq/text/at/direction) — 02 api.js 와도 같다.
+ */
+
+/** `--json` 을 붙여 실행하고 JSON 을 돌려준다. JSON 이 아니면 json:null (텍스트 폴백용 r 은 그대로). */
+async function runJson(args, opts) {
+  const r = await runCli([...args, '--json'], opts);
+  let json = null;
+  try { json = JSON.parse(r.stdout.trim()); } catch { /* v1.0.0 — --json 미지원 */ }
+  return { ...r, json };
+}
+
+/** JSON 오류 봉투 { ok:false, error } 또는 비정상 종료를 사람이 읽을 문장으로 */
+function cliError(r, label) {
+  return (r.json && r.json.ok === false && (r.json.error || r.json.message)) || r.stderr || r.stdout || `${label} 실패`;
+}
+
+/* 고객 첨부 — 본문에 한 줄씩 "[photo|video|audio|file] 카카오CDN URL( 문구)" (02 api.js 와 같은 규칙)
+ * 호스트가 talk.kakaocdn.net 인 https 만 첨부로 인정한다 — 고객이 입력한 링크·SSRF 방지.
+ * CDN URL 은 서명 쿼리(credential·expires)가 붙은 임시 주소다. 보관이 필요하면 수신 직후 사본을 저장한다. */
+const ATTACHMENT_LINE = /^\[(photo|video|audio|file)\] (\S+)(?: (.*))?$/;
+const KAKAO_CDN_HOST = 'talk.kakaocdn.net';
+
+export function parseAttachments(text) {
+  const out = [];
+  for (const line of String(text ?? '').split('\n')) {
+    const m = ATTACHMENT_LINE.exec(line.trim());
+    if (!m) continue;
+    let url;
+    try { url = new URL(m[2]); } catch { continue; }
+    if (url.protocol !== 'https:' || url.hostname !== KAKAO_CDN_HOST) continue;
+    out.push({ type: m[1], url: url.href, comment: m[3] ?? '' });
+  }
+  return out;
+}
+
+const SYSTEM_TEXT = {
+  reference: '— 새 상담이 연결되었습니다 —',
+  expired: '— 세션이 만료되었습니다 —',
+  ended: '— 상담이 종료되었습니다 —',
+  deleted: '— 보낸 메시지를 삭제했습니다 —',
+};
+
+/** REST 형 메시지(JSON) → 화면 모델. 텍스트 파서 결과에도 첨부·방향 규칙을 똑같이 입힌다. */
+function normalizeMessage(m) {
+  const direction = m.kind === 'agent' ? 'out' : m.kind === 'message' ? 'in' : 'system';
+  const text = direction === 'system' ? SYSTEM_TEXT[m.kind] ?? m.text ?? '' : m.text ?? '';
+  const msg = {
+    seq: Number(m.seq),
+    kind: m.kind,
+    text,
+    at: m.timestampUnixMs ? new Date(Number(m.timestampUnixMs)).toISOString() : m.at ?? null,
+    direction,
+  };
+  if (m.atRaw) msg.atRaw = m.atRaw;
+  if (m.sessionId !== undefined) msg.sessionId = m.sessionId;
+  if (m.serial) msg.serial = m.serial;     // 발신(agent)·삭제(deleted) 항목 — 코어가 주는 경우에만
+  if (m.deleted) msg.deleted = true;
+  const attachments = direction === 'system' ? [] : parseAttachments(text);
+  if (attachments.length) msg.attachments = attachments;
+  return msg;
+}
+
+function normalizeRoom(r) {
+  const ended = Boolean(r.ended);
+  return {
+    userKey: r.userKey,
+    status: ended ? '종료' : '진행중',
+    ended,
+    count: Number(r.count ?? 0),
+    lastSeq: Number(r.lastSeq ?? 0),
+    lastAt: r.lastTimestampUnixMs ? new Date(Number(r.lastTimestampUnixMs)).toISOString() : null,
+    lastText: r.lastText ?? '',
+  };
+}
+
+/** 발신 결과의 serial — JSON 이면 필드, 텍스트면 "bw-…" 패턴 */
+function serialOf(r) {
+  if (r.json) return r.json.serial ?? r.json.results?.find?.((x) => x.serial)?.serial ?? null;
+  return /\bbw-[\w-]+/.exec(r.stdout + r.stderr)?.[0] ?? null;
+}
+
+/** 발신 계열 공통 반환 — { ok, raw, code, serial, body } (02 api.js write() 와 같은 모양) */
+function sendResult(r) {
+  const ok = r.json ? r.code === 0 && r.json.ok !== false : r.code === 0;
+  const raw = r.json && !ok ? cliError(r, '발신') : (r.stdout + r.stderr).trim();
+  return { ok, raw, code: r.json?.code ?? r.code, serial: serialOf(r), body: r.json };
+}
+
 /* ── 고수준 명령 ───────────────────────────────────────────────────────── */
 
 export async function cliWhoami() {
-  const r = await runCli(['whoami']);
-  if (r.code !== 0) throw new Error(r.stderr || r.stdout || 'whoami 실패');
+  const r = await runJson(['whoami']);
+  if (r.json && r.json.ok !== false) {
+    // v1.3+ 는 brands 가 채널 키 목록이고 channels[] 에 상세(type·name·brandKey)가 있다
+    const { name = null, scope = null, endpoint = null, brands = [] } = r.json;
+    return { name, scope, endpoint, brands };
+  }
+  if (r.code !== 0) throw new Error(cliError(r, 'whoami'));
   return parseWhoami(r.stdout);
 }
 
 export async function cliRooms(max = 50) {
-  const r = await runCli(['rooms', '--brand', config.brand, '--max', String(max)]);
-  if (r.code !== 0) throw new Error(r.stderr || r.stdout || 'rooms 실패');
+  const r = await runJson(['rooms', '--brand', config.brand, '--max', String(max)]);
+  if (Array.isArray(r.json)) return r.json.map(normalizeRoom);
+  if (Array.isArray(r.json?.rooms)) return r.json.rooms.map(normalizeRoom);
+  if (r.code !== 0 || r.json) throw new Error(cliError(r, 'rooms'));
   return parseRooms(r.stdout);
 }
 
 export async function cliRoomMessages(userKey, max = 50) {
-  const r = await runCli(['rooms', '--brand', config.brand, '--user', userKey, '--max', String(max)]);
-  if (r.code !== 0) throw new Error(r.stderr || r.stdout || 'rooms --user 실패');
-  return parseMessages(r.stdout);
+  const r = await runJson(['rooms', '--brand', config.brand, '--user', userKey, '--max', String(max)]);
+  const list = Array.isArray(r.json) ? r.json : r.json?.messages;
+  if (Array.isArray(list)) return list.map(normalizeMessage).sort((a, b) => a.seq - b.seq);
+  if (r.code !== 0 || r.json) throw new Error(cliError(r, 'rooms --user'));
+  return parseMessages(r.stdout).map(normalizeMessage);
 }
 
 export async function cliHistory() {
@@ -290,43 +391,49 @@ export async function cliHistory() {
   return parseHistory(r.stdout);
 }
 
-/** 텍스트 발신. 성공하면 CLI 원문을 함께 돌려준다(발신번호 확인용). */
+/** 텍스트 발신. serial(발신번호)은 발신 취소와 agent echo 대조의 키다. */
 export async function cliSend(userKey, text) {
-  const r = await runCli(['send', '--brand', config.brand, '--to', userKey, '--text', text]);
-  return { ok: r.code === 0, raw: (r.stdout + r.stderr).trim(), code: r.code };
+  return sendResult(await runJson(['send', '--brand', config.brand, '--to', userKey, '--text', text]));
 }
 
-/** 첨부 발신 — CLI 가 업로드까지 대신 해준다(upload 는 rich 조립용이라 별개). */
-export async function cliSendFile(userKey, filePath, text) {
-  const args = ['send', '--brand', config.brand, '--to', userKey, '--file', filePath];
+/**
+ * 첨부 발신 — CLI 가 업로드·말풍선 조립까지 대신 한다(upload 는 rich 조립용이라 별개).
+ * `--file` 을 여러 번 주면 한 번에 보내고, 말풍선마다 serial 이 results[] 로 온다.
+ * 한 장이라도 나가면 ok — 실패한 항목만 results[].ok:false 로 온다.
+ */
+export async function cliSendFiles(userKey, filePaths, text) {
+  const args = ['send', '--brand', config.brand, '--to', userKey];
+  for (const f of filePaths) args.push('--file', f);
   if (text) args.push('--text', text);
-  const r = await runCli(args, { timeoutMs: 60000 });
-  return { ok: r.code === 0, raw: (r.stdout + r.stderr).trim(), code: r.code };
+  const r = await runJson(args, { timeoutMs: 60000 + 20000 * filePaths.length });
+  const res = sendResult(r);
+  return { ...res, results: Array.isArray(r.json?.results) ? r.json.results : [] };
 }
 
 /** 상담 종료 + 봇 전환. CLI 에는 순수 end 가 없고 end-with-bot 만 있다. */
 export async function cliEndWithBot(userKey, event) {
   const args = ['end-with-bot', '--brand', config.brand, '--to', userKey];
   if (event) args.push('--event', event);
-  const r = await runCli(args);
-  return { ok: r.code === 0, raw: (r.stdout + r.stderr).trim(), code: r.code };
+  return sendResult(await runJson(args));
 }
 
 export async function cliBlock(userKey, unblock = false) {
-  const r = await runCli([unblock ? 'unblock' : 'block', '--brand', config.brand, '--to', userKey]);
-  return { ok: r.code === 0, raw: (r.stdout + r.stderr).trim(), code: r.code };
+  return sendResult(await runJson([unblock ? 'unblock' : 'block', '--brand', config.brand, '--to', userKey]));
 }
 
-/** 발신 취소(24시간 내). serial 을 모르면 본문으로 역추적한다. */
-export async function cliDelete(userKey, { serial, text, withinSec }) {
+/**
+ * 발신 취소(발송 후 24시간 내, 말풍선 1개 단위). serial 이 정확하고, 모르면 본문으로 역추적한다.
+ * 고객 방에는 「메시지가 삭제되었습니다」가 남고 상담 건수는 돌아오지 않는다.
+ */
+export async function cliDelete(userKey, { serial, text, withinSeconds, withinSec }) {
   const args = ['delete', '--brand', config.brand, '--to', userKey];
+  const within = withinSeconds ?? withinSec;
   if (serial) args.push('--serial', String(serial));
   else if (text) {
     args.push('--text', text);
-    if (withinSec) args.push('--within', String(withinSec));
+    if (within) args.push('--within', String(within));
   } else {
-    return { ok: false, raw: 'serial 또는 text 중 하나가 필요합니다', code: -1 };
+    return { ok: false, raw: 'serial 또는 text 중 하나가 필요합니다', code: -1, serial: null };
   }
-  const r = await runCli(args);
-  return { ok: r.code === 0, raw: (r.stdout + r.stderr).trim(), code: r.code };
+  return sendResult(await runJson(args));
 }

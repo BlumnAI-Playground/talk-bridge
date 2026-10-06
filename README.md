@@ -33,6 +33,38 @@
 02 는 TalkBridge 가 **내 공개 엔드포인트로 들어오는** 방식이라 그 인프라가 필요한 대신,
 전달이 영속되고 재시도가 넉넉합니다.
 
+### 새 기능 — 이미지 첨부 · 고객 첨부 확인 · 발신 취소 (2026-10)
+
+01·02 상담 화면에 세 기능이 들어갔습니다. 01 은 CLI v1.3.1 로 실채널 실측까지 마쳤습니다.
+
+**CLI 로 먼저 확인하고, 웹훅 + API 에 그대로 적용할 수 있습니다.**
+01(CLI × 로컬 게이트웨이)은 공개 도메인 없이 노트북에서 바로 실발신·실수신을 해 볼 수 있습니다.
+CLI 의 `--json` 출력은 필드명이 REST 와 같고, 로컬 게이트웨이가 보내는 웹훅도 호스티드 웹훅과
+**같은 서명·같은 페이로드**(`phase`·`serial`·`serials`·`deleted`)입니다. 그래서 01 에서 확인한 동작이
+02(REST API × 호스티드 웹훅)에서도 그대로 성립합니다.
+
+```
+01 CLI 로 확인                         02 웹훅 + API 로 적용
+send --file a --file b --text …   →   POST /api/agent/send/attachments (multipart)
+delete --serial bw-…              →   POST /api/agent/delete
+로컬 게이트웨이 → /webhook          →   호스티드 게이트웨이 → https://<내 도메인>/webhook
+```
+
+실제로 두 샘플은 수신 처리(`webhook.js` — 본문 조회 2줄만 다름), 서명 검증·저장소·발신 serial 기억(`signature.js`·`store.js`·`outbox.js` — 동일),
+상담 화면(`public/` — 문구만 다름)을 공유합니다. 바뀌는 것은 조회·발신을 **CLI 로 부르느냐(`cli.js`), REST 로 부르느냐(`api.js`)** 한 파일뿐입니다.
+01 에서 기능을 검증한 뒤 운영 서버로 옮길 때는 `cli.js` 자리를 `api.js` 로 바꾸고, 수신 URL 을 센터의 Webhook 연결에 등록하면 됩니다.
+
+| 기능 | 화면에서 | 연동 (01 CLI / 02 REST) |
+|---|---|---|
+| **이미지·파일 첨부 발신** | 입력창 왼쪽 **첨부** → 여러 개 선택 → 캡션과 함께 전송 | `send --file … [--text]` / `POST /api/agent/send/attachments` |
+| **고객 첨부 확인** | 고객이 보낸 사진은 썸네일, 동영상·음성·파일은 링크 칩으로. 묶음사진도 한 말풍선에 모두 | 본문의 `[photo] https://talk.kakaocdn.net/…` 줄을 파싱 |
+| **발신 취소** | 내 말풍선에 마우스를 올려 **발신 취소** (발송 후 24시간 이내). 묶음은 남은 장을 모두 삭제 | `delete --serial` / `POST /api/agent/delete` + 웹훅 `kind:"deleted"` |
+
+- 모든 발신 응답에 오는 `serial`(`bw-…`)이 취소의 키입니다. 묶음 첨부는 장마다 serial 이 따로 옵니다
+- 고객 방에는 「메시지가 삭제되었습니다」가 남고, 상담 건수는 돌아오지 않습니다
+- 카카오 CDN URL 이 아닌 링크(고객이 직접 입력한 링크)는 이미지로 띄우지 않습니다. CDN URL 은 만료되므로 보관이 필요하면 수신 직후 사본을 저장하세요
+- 실측 응답·웹훅 원문과 주의점은 [01 README §4.1](sample-project/01-cli-gateway/README.md#41-첨부--발신-취소-실측-cli-v131-2026-10-06), 02 는 [§6.7~6.9](sample-project/02-api-webhook/README.md#67-고객-첨부-확인--본문-안의-photo-url)
+
 03 은 **톡브릿지 CLI 로 상담 Agent 기능을 확장하고자 할 때** 활용할 수 있는 샘플입니다 — 톡브릿지가 부가 기능인
 **상담 분석 Agent** 로 어떻게 확장될 수 있는지를 보여주는 데모성 구현입니다. 그래프 기능은 상담 내역으로 온톨로지를 구축할 때
 참고할 수 있는 연구 샘플이며, CLI 가 파트너사의 온톨로지를 위해 공식 제공하는 기능은 아닙니다. CLI 가 설치된 곳에서
@@ -64,13 +96,13 @@
 # CLI 설치 + 로그인
 npm install -g @blumn-ai/talkbridge-cli    # dev 채널은 @blumn-dev/talkbridge-cli
 talkbridge login
-talkbridge whoami                           # 브랜드 키 확인
+talkbridge whoami                           # "상담 가능 채널" 키 확인 (v1.3+, 구 CLI 는 브랜드 키)
 
 # 01 샘플 실행
 cd sample-project/01-cli-gateway
 cp .env.example .env                        # TB_BRAND, TB_WEBHOOK_SECRET 채우기
 npm run doctor                              # 진단
-npm run gateway:setup && npm run gateway:start
+npm run gateway:setup && npm run gateway:start   # 이미 떠 있으면 talkbridge gateway restart (sink 반영)
 npm start                                   # http://127.0.0.1:8787/
 ```
 

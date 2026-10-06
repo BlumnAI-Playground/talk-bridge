@@ -10,6 +10,8 @@ CLI 를 설치하지 않고, 데몬도 띄우지 않습니다. 조회·발신은
 - 런타임: **Node.js 18+**, 의존성 **0개** (`node:http` + 내장 `fetch`)
 - 프론트: **바닐라 JS** (01 과 동일 화면)
 - 검증 환경: 개발환경 `api.talkbridge-dev.com` / brand `crm-b3e696` / Windows 11 · Node 22.18 · Tailscale Funnel
+- 2026-10-06 추가: **고객 첨부 확인 · 첨부 발신 · 발신 취소** — 공개 매뉴얼 기준 구현, 목 REST 서버 E2E 로 검증(§6.7~6.9).
+  같은 코어·같은 신호를 [01 샘플](../01-cli-gateway/README.md#41-첨부--발신-취소-실측-cli-v131-2026-10-06)이 CLI v1.3.1 로 실측(웹훅 페이로드 일치). 02 의 REST 실발신은 아직
 
 ---
 
@@ -106,6 +108,7 @@ REST 응답 봉투도 실측으로 고정했습니다:
 GET /api/agent/me                      → { name, scope, brands[] }               (봉투 없음)
 GET /api/agent/rooms                   → { ok, brand, rooms[] }                   rooms[]: userKey lastSeq lastText lastKind lastTimestampUnixMs count ended
 GET /api/agent/rooms/{u}/messages      → { ok, brand, userKey, messages[] }       messages[]: seq userKey sessionId kind text timestampUnixMs — 최신순
+                                                                                    + serial(agent·deleted 만) deleted(삭제된 발신만 true)
 ```
 
 | | 호스티드 게이트웨이 (02) | CLI 게이트웨이 (01) |
@@ -131,19 +134,22 @@ GET /api/agent/rooms/{u}/messages      → { ok, brand, userKey, messages[] }   
 | 종료 | `POST /api/agent/end` | `brandKey`, `userKey`, `greeting?` | `end` |
 | 종료+봇전환 | `POST /api/agent/end-with-bot` | `brandKey`, `userKey`, `botEvent?` | `endWithBot` |
 | 차단/해제 | `POST /api/agent/block` · `unblock` | `brandKey`, `userKey` | `block` |
+| **첨부 발신** | `POST /api/agent/send/attachments` (multipart) | `brandKey`, `userKey`, `text?`, `files`(여러 개) | `sendAttachments` |
+| **발신 취소** | `POST /api/agent/delete` | `brandKey`, `userKey`, `serial` (또는 `text`, `withinSeconds?`) | `deleteMessage` |
 
 - 헤더 `Authorization: Bearer blumnb-…`. 조회는 BrandRead, 발신·설정은 BrandWrite
 - 응답 봉투 `{ ok, code, message, ... }` — `FORBIDDEN` / `NO_BRAND_SCOPE` 는 재시도 무의미, `NO_PERSISTENCE`(503) 는 재시도
 - **활성 세션에만 발신됩니다.** 발신은 **구독 상담 건수를 소진**합니다(조회는 비과금)
+- 모든 발신 응답에 `serial`(`bw-…`)이 옵니다 — 발신 취소와 `agent` echo 대조의 키라 **저장해 두세요**. 첨부 발신은 말풍선마다 `results[].serial`
 
 ### 01 (CLI) 과 다른 점
 
 | 항목 | 01 CLI | 02 REST |
 |---|---|---|
 | 순수 종료 | 없음 (`end-with-bot` 만) | `end` 있음 |
-| 발신 취소 `delete` | 있음 | **REST 에 없음** |
-| `history` / `convId` | 있음 | **REST 에 없음** |
-| 첨부 발신 | `send --file` 한 번 | `upload/image` → URL → `send/rich` 조립 |
+| 발신 취소 `delete` | 있음 | `POST /api/agent/delete` (2026-10 추가) |
+| `history` / `convId` | 있음 | `GET /api/agent/conversations` · `conversation` (샘플 미사용) |
+| 첨부 발신 | `send --file` 한 번 | `send/attachments` 한 번 (2026-10 추가). `upload/image` → `send/rich` 는 리치 카드 조립용 |
 | 출력 | 텍스트 파싱 | JSON |
 
 ---
@@ -157,10 +163,11 @@ GET /api/agent/rooms/{u}/messages      → { ok, brand, userKey, messages[] }   
 │  ├─ config.js       .env 로더                                 (키 이름만 다름)
 │  ├─ api.js          ★ REST 클라이언트 + 응답 정규화           (01 의 cli.js 자리, 절반 길이)
 │  ├─ signature.js    ★ HMAC 서명 검증                          ← 01 과 바이트 단위 동일
-│  ├─ webhook.js      ★ 수신 핸들러                             ← 01 과 동일, 본문 조회 2줄(import·호출)만 api.js
+│  ├─ webhook.js      ★ 수신 핸들러                             ← 01 과 같은 뼈대, 본문 조회 2줄 + 02 전용 신호(test·accepted·deleted)
 │  ├─ store.js        인메모리 저장소 + 멱등 집합                ← 01 과 동일
+│  ├─ outbox.js       발신 serial 기억(조회에 serial 이 없을 때) ← 01 과 동일
 │  └─ sse.js          브라우저 실시간 푸시                       ← 01 과 동일
-├─ public/            3분할 상담 화면                            ← 01 과 동일 (문구만)
+├─ public/            3분할 상담 화면                            ← 01 + 첨부 발신 · 발신 취소 · 고객 첨부 썸네일
 ├─ scripts/
 │  ├─ doctor.mjs      진단 6종 — REST 인증 · 공개 URL 도달성 · 서명 실패 케이스
 │  └─ screenshot.mjs  소개용 스크린샷 (Playwright, 선택)
@@ -183,6 +190,8 @@ GET /api/agent/rooms/{u}/messages      → { ok, brand, userKey, messages[] }   
 | POST | `/api/send` | `POST /api/agent/send` |
 | POST | `/api/end` (`mode:"plain"` 이면 `end`) | `end-with-bot` / `end` |
 | POST | `/api/block` · `/api/unblock` | `block` / `unblock` |
+| POST | `/api/send/attachments` `{userKey, text?, files[{name,type,dataBase64}]}` | `send/attachments` (이 서버가 multipart 로 재조립) |
+| POST | `/api/delete` `{userKey, serial | text, withinSeconds?}` | `delete` |
 
 ---
 
@@ -229,11 +238,11 @@ Node 18~20 은 내장 `fetch` 가 experimental 이라 첫 호출에 경고 한 �
 발신에 성공하면 내 웹훅으로 `kind:"agent"` 가 되돌아옵니다. 실측으로는 **발신 1건에 두 번** 옵니다:
 
 ```
-① 즉시      {"userKey":"…","kind":"agent","brand":"…"}            ← seq 없음 (발신 접수 신호)
-② 약 1초 뒤  {"userKey":"…","kind":"agent","seq":16,"brand":"…"}   ← 저널 항목
+① 즉시      {"userKey":"…","kind":"agent","phase":"accepted","serial":"bw-…","brand":"…"}  ← seq 없음 (발신 접수 신호)
+② 약 1초 뒤  {"userKey":"…","kind":"agent","seq":16,"serial":"bw-…","brand":"…"}         ← 저널 항목 (첨부 발신은 serials[] 도)
 ```
 
-`webhook.js` 는 ①을 저장하지 않고 SSE `ack` 로만 흘리고, ②가 오면 `store.js` 가 같은 본문의 낙관적(pending) 말풍선을 치웁니다.
+`webhook.js` 는 ①을 — 매뉴얼 권고대로 **`phase` 로** 구분해(seq 부재는 옛 코어 대비 보조 조건) — 저장하지 않고 SSE `ack` 로만 흘리고, ②가 오면 `store.js` 가 같은 본문의 낙관적(pending) 말풍선을 치웁니다.
 이 처리가 없으면 답장 하나가 **말풍선 세 개**(pending · seq 없음 · seq 있음)로 보입니다.
 `POST /api/agent/send` 응답에는 `serial`(`bw-…`)이 들어 있습니다.
 
@@ -248,6 +257,46 @@ TB_DEBUG_WEBHOOK=1 npm start
 
 서명값은 앞 12자만 남깁니다. 페이로드 형식이 의심될 때만 켜세요.
 
+센터 개발자 모드 「연결 테스트」 신호(`test: true`, `userKey: tb-test-…`, `seq: 0`)는 가상 고객이라 본문 조회·답장이 되지 않습니다.
+`webhook.js` 는 이 신호를 **멱등 처리 전에** 걸러 로그·SSE `test` 로만 남깁니다 — 안 그러면 `(brand, 0)` 이 멱등 집합에 들어갑니다.
+
+### 6.7 고객 첨부 확인 — 본문 안의 `[photo] URL`
+
+고객이 카카오톡으로 보낸 사진·동영상·음성·파일은 별도 필드가 아니라 `message` 본문 `text` 에 **한 줄씩** 옵니다:
+
+```
+[photo] https://talk.kakaocdn.net/…/i_6f66….jpeg
+[photo] https://talk.kakaocdn.net/…/i_cdfc….jpeg 영수증이요      ← 문구는 URL 뒤 공백
+```
+
+- `api.js` `parseAttachments()` 가 본문을 줄 단위로 나눠 `messages[].attachments[{type, url, comment}]` 로 올리고, 화면은 사진을 썸네일·나머지를 링크 칩으로 그립니다
+- **묶음사진은 메시지 1건에 여러 줄** — 첫 줄만 읽으면 둘째 장부터 빠집니다
+- **호스트가 `talk.kakaocdn.net` 인 https 만** 첨부로 인정합니다. 고객이 직접 입력한 링크도 같은 본문으로 오므로, 임의 URL 을 `<img>` 로 띄우거나 서버가 내려받으면 추적·SSRF 통로가 됩니다
+- **CDN URL 은 영구 주소가 아닙니다**(열흘 뒤 열리지 않음). 상담 기록에 남기려면 수신 직후 내려받아 내 저장소에 보관하고 그 사본을 연결하세요 — 이 샘플은 보관하지 않습니다(§7)
+
+### 6.8 첨부 발신 — `send/attachments` 한 번
+
+```
+브라우저 ──JSON+base64──► /api/send/attachments ──multipart──► POST /api/agent/send/attachments
+```
+
+- 브라우저 → 이 서버는 JSON+base64 로 받습니다(multipart 파서를 직접 짜지 않기 위해 — 의존성 0). 상한은 `TB_MAX_UPLOAD_MB`(기본 10), 넘으면 413
+- `api.js` `sendAttachments()` 가 Node 18 내장 `FormData`·`Blob` 으로 다시 multipart 를 조립합니다. **`content-type` 을 직접 넣지 마세요** — boundary 는 fetch 가 붙입니다
+- 이미지는 리치 IMAGE, 파일은 FILE 말풍선으로 나가고 `results[]` 에 **말풍선마다 `serial`** 이 옵니다. 한 장이라도 나가면 최상위 `ok: true` — 실패한 항목(`ok: false`, `message`)만 다시 보내면 됩니다
+- 함께 보낸 `text` 는 첫 말풍선에 실립니다(이미지면 캡션). 파일+텍스트는 말풍선이 따로 나갑니다
+- 첨부는 낙관적(pending) 말풍선을 그리지 않습니다. 본문이 업로드 뒤에야 정해져 pending 을 치울 기준이 없기 때문 — 화면 반영은 `agent` echo 가 합니다
+
+### 6.9 발신 취소 — `delete` 와 `kind: "deleted"`
+
+- 내 말풍선에 마우스를 올리면 **발신 취소** 버튼이 보입니다(`serial` 이 있고 발송 후 24시간 이내일 때만)
+- `POST /api/agent/delete` 는 **말풍선 1개 단위**입니다. 이미지 여러 장을 한 번에 보냈다면 장마다 호출합니다 — 화면 버튼은 묶음의 남은 `serial` 을 모두 지웁니다
+- `serial` 이 정확합니다. 놓쳤을 때만 `text`(정확히 일치) + `withinSeconds` 로 최근 발신을 찾습니다(서버 API 는 둘 다 받음)
+- 고객 방에는 「메시지가 삭제되었습니다」가 남고, **상담 건수는 돌아오지 않습니다**. 개인정보 동의·카카오톡 인증 말풍선과 고객 메시지는 지울 수 없습니다
+- 삭제가 성공할 때마다 웹훅 `kind: "deleted"`(`serial` 포함)가 옵니다. `webhook.js` 는 같은 `serial` 의 말풍선에 삭제 표시를 하고(묶음은 모든 장이 지워졌을 때), 시스템 줄을 남깁니다. **다른 상담 도구에서 지운 것도 같은 신호**라 화면이 맞춰집니다
+- 매뉴얼상 다시 조회하면 원 발신에 `serial`·`deleted: true` 가 붙어 옵니다. **2026-10-06 개발 코어 실측(01 경유)에서는 아직 없었습니다** —
+  그래서 `server/outbox.js` 가 이 서버가 보낸 발신의 serial 을 기억했다가 본문(텍스트=본문, 첨부=캡션 또는 `[첨부]`)으로 짝을 맞춰 붙입니다
+- echo 가 5초 안에 오지 않으면 화면이 대화를 다시 조회해 확정합니다. 확인 대기 중에도 serial 이 있으면 바로 취소할 수 있습니다
+
 ---
 
 ## 7. 운영으로 옮길 때
@@ -259,6 +308,9 @@ TB_DEBUG_WEBHOOK=1 npm start
 | `HOST=127.0.0.1` | 프록시 뒤라면 그대로. 직접 노출이면 상담원 인증 필수 |
 | 인증 없는 상담 화면 | 상담원 로그인·권한 |
 | 사람이 답장 | `webhook.js` 의 보강 직후에 LLM 호출 → AI 상담봇 (`agent` echo 필터 필수) |
+| 고객 첨부를 CDN URL 로만 표시 | 수신 직후 카카오 CDN 에서 내려받아 내 저장소에 보관(호스트 검증 필수), 개인정보 보관 기간 적용 |
+| 첨부를 이 서버 메모리로 중계(base64) | 큰 파일은 스트리밍 multipart 중계 또는 브라우저 → 내 스토리지 직접 업로드 |
+| `serial` 을 메모리에만 보관 | 메시지 테이블에 `serial` 컬럼 — 재기동 뒤에도 발신 취소 가능 |
 
 ---
 
@@ -272,7 +324,12 @@ TB_DEBUG_WEBHOOK=1 npm start
 | 이벤트가 안 옴 | 센터 Webhook 연결 URL 확인, `npm run doctor` `[5]` 로 인터넷 경로 도달 확인, 센터의 전달 상태(Failed/Degraded) 확인 |
 | 같은 이벤트가 5번 옴 | 서버가 2xx 를 안 돌려줌 (예외로 500) — 서명 통과 후엔 무조건 200 |
 | `rooms` 가 0개로 파싱됨 | 봉투 구조 변경 → `doctor [4]` 가 보여주는 응답 키로 `api.js` `pick()` 조정 |
-| 발신이 세션 오류로 실패 | 종료·만료된 상담. 새 문의가 와야 재개 |
+| 발신이 세션 오류로 실패 | 종료·만료된 상담(`-502`). 새 문의가 와야 재개 |
+| 첨부 발신이 413 | `TB_MAX_UPLOAD_MB` 초과 — 나눠 보내거나 상한 조정 |
+| 첨부 일부만 실패 (`results[].ok:false`) | 「보낼 수 없는 이미지예요」 등 — 아주 작거나 세로로 긴 이미지는 미지원. 실패한 장만 재발신 |
+| 발신 취소가 `EXPIRED` / `NOT_DELETABLE` | 발송 후 24시간 경과 / 개인정보 동의·인증 말풍선 — 지울 수 없음 |
+| 발신 취소가 `NOT_FOUND` | `text` 로 찾기 실패 — `serial` 로 지정하거나 `withinSeconds` 를 늘림 |
+| 고객 사진이 썸네일 대신 텍스트로 보임 | `talk.kakaocdn.net` 이 아닌 URL(고객이 입력한 링크) — 의도된 동작. CDN URL 이 만료됐으면 이미지가 깨짐(§6.7) |
 | Funnel 주소가 로컬에서 타임아웃 | 정상(MagicDNS). §6.3 |
 | `curl` 로 보낸 한글이 `�ѱ�`/`??` 로 깨져 발송됨 | **보내는 쪽** 문제. Windows 에서 한글을 명령행 인자(`-d '…'`)로 넘기면 코드페이지 949 로 재해석됨. `--data-binary @-` 히어독·파일, 또는 Node `fetch` 로 보낼 것. PowerShell 은 `-Body ([Text.Encoding]::UTF8.GetBytes($json))`. 서버는 바이트를 변형하지 않음 |
 

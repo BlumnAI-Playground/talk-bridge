@@ -9,6 +9,7 @@
 - 런타임: **Node.js 18+**, 의존성 **0개** (`node:http` 내장 모듈만)
 - 프론트: **바닐라 JS** (프레임워크·번들러 없음)
 - 검증 환경: `talkbridge-dev` v1.0.0 → v1.1.0 재검증 / brand `crm-b3e696` / Windows 11 · Node 22.18
+- 2026-10-06 **v1.3.1 실측**: 채널 `oty3kdyxmzlthyz-1a1637` — 고객 첨부 확인 · 첨부 발신(1장·묶음 2장) · 발신 취소 · `deleted` 웹훅 (§4.1)
 
 ![상담 화면 — 상담방 목록, 대화, 실시간 수신 이벤트](docs/screenshot.png)
 
@@ -107,7 +108,7 @@ talkbridge-dev whoami                       # 브랜드 키 확인
 
 # 1) 환경 설정
 cp .env.example .env
-#   TB_BRAND           ← whoami 에서 본 브랜드 키
+#   TB_BRAND           ← whoami 의 "상담 가능 채널" 키 (v1.3+, 카카오 채널 키. 구 CLI 는 브랜드 키)
 #   TB_WEBHOOK_SECRET  ← 아무 긴 랜덤 문자열 (whsec_ 로 시작하는 걸 권장)
 
 # 2) 진단 — 붙기 전에 빠진 걸 먼저 본다
@@ -179,9 +180,12 @@ x-bridge-delivery-id: d38f7b06-4524-4872-9c26-c251a91f4eb9
 | `reference` | ✗ | 방을 `진행중` 으로, 시스템 말풍선 |
 | `expired` | ✗ | 방을 `종료` 로 |
 | `ended` | ✗ | 방을 `종료` 로 |
+| `deleted` | ✗ | 같은 `serial` 의 내 말풍선에 삭제 표시(묶음은 모든 장이 지워졌을 때) + 시스템 줄 |
 
+> 연결 테스트 신호(`test: true`, `seq: 0`)는 멱등 처리 **전에** 걸러 로그·SSE 로만 남깁니다.
+>
 > 호스티드 게이트웨이(02)는 발신 1건에 `agent` 를 **두 번**(seq 없는 즉시 신호 + seq 있는 저널 항목) 보내는 것이
-> 실측되었습니다. `webhook.js` 는 seq 없는 `agent` 를 저장하지 않고 넘기며, `store.js` 는 seq 있는 echo 가 오면
+> 실측되었습니다. CLI 게이트웨이 v1.3.1 도 같습니다(①에 `phase:"accepted"`·`serial`). `webhook.js` 는 이 접수 신호를 `phase` 로 구분해 저장하지 않고 넘기며, `store.js` 는 seq 있는 echo 가 오면
 > 같은 본문의 낙관적(pending) 말풍선을 치웁니다 — 두 파일은 01·02 가 공유하므로 여기에도 같은 처리가 들어 있습니다.
 >
 > **`agent` echo 는 반드시 자동응답 로직에서 제외해야 합니다.**
@@ -210,9 +214,9 @@ CLI 게이트웨이 재시도는 **1s → 3s, 최대 3회 · 인메모리**입�
 | 동작 | 명령 | 래퍼 |
 |---|---|---|
 | 텍스트 발신 | `send --brand <키> --to <userKey> --text <메시지>` | `cliSend` |
-| 첨부 발신 | `send --brand <키> --to <userKey> --file <경로> [--text ...]` | `cliSendFile` |
+| 첨부 발신 | `send --brand <키> --to <userKey> --file <경로> [--file ...] [--text ...]` | `cliSendFiles` |
 | 리치 발신 | `send --brand <키> --to <userKey> --rich-json <파일>` | — |
-| 발신 취소 | `delete --brand <키> --to <userKey> --serial <번호>` (24h 내) | `cliDelete` |
+| 발신 취소 | `delete --brand <키> --to <userKey> --serial <번호>` 또는 `--text <본문> [--within <초>]` (24h 내) | `cliDelete` |
 | 종료+봇전환 | `end-with-bot --brand <키> --to <userKey> [--event <블럭>]` | `cliEndWithBot` |
 | 차단/해제 | `block` / `unblock --brand <키> --to <userKey>` | `cliBlock` |
 
@@ -225,6 +229,33 @@ CLI 게이트웨이 재시도는 **1s → 3s, 최대 3회 · 인메모리**입�
 > **활성 세션에만 발신됩니다.** 종료·만료된 상담에는 보낼 수 없고, 새 문의가 와야 재개됩니다.
 > 그리고 발신은 **구독 상담 건수를 소진**합니다(조회·설정은 비과금).
 
+### 4.1 첨부 · 발신 취소 실측 (CLI v1.3.1, 2026-10-06)
+
+조회·발신은 전역 `--json` 을 먼저 씁니다(필드명 = REST). 응답 실측:
+
+```
+send --text … --json        → {"ok":true,"brandKey":"…","userKey":"…","serial":"bw-1791262630051-75bd"}
+send --file a --file b --json → {"ok":true,"results":[{"kind":"image","ok":true,"code":"0","serial":"bw-…-793d"},
+                                                      {"kind":"image","ok":true,"code":"0","serial":"bw-…-9d6e"}]}
+delete --serial … --json    → {"ok":true,"brandKey":"…","userKey":"…","serial":"bw-…"}
+```
+
+게이트웨이가 01 로 보낸 웹훅(같은 발신·취소):
+
+```
+{"kind":"agent","phase":"accepted","serial":"bw-…-793d"}                                     ← 접수 신호, seq 없음
+{"kind":"agent","seq":103,"serial":"bw-…-793d","serials":["bw-…-793d","bw-…-9d6e"]}           ← 저널 항목(묶음은 serials)
+{"kind":"deleted","seq":104,"serial":"bw-…-793d"}  {"kind":"deleted","seq":105,"serial":"bw-…-9d6e"}  ← 장마다 1건
+```
+
+- 묶음 첨부는 **고객 방에는 장마다 말풍선**, 저널에는 **1건**(본문 = 캡션, 캡션이 없으면 `[첨부]`)
+- 삭제는 말풍선 1개 단위 — 묶음은 `results[].serial` 마다 호출. 화면 버튼은 남은 장을 모두 지운다
+- **조회(`rooms --user --json`)의 agent·deleted 항목에는 `serial`·`deleted` 가 아직 없습니다**(매뉴얼과 다름).
+  그래서 `server/outbox.js` 가 이 서버가 보낸 발신의 serial 을 기억했다가 본문으로 짝을 맞춰 붙입니다 — 재조회해도 취소 버튼이 유지됩니다.
+  서버를 재기동하면 이 기억은 사라집니다(운영: 메시지 테이블의 serial 컬럼)
+- 고객 첨부는 본문에 `[photo] https://talk.kakaocdn.net/…?credential=…&expires=…` 줄로 옵니다(묶음 = 여러 줄).
+  **텍스트 출력은 긴 본문을 `…` 로 잘라 URL 을 읽을 수 없습니다** — 첨부를 보려면 `--json` 이 필수입니다
+
 ### 공개 문서와 다른 점 (dev CLI v1.0.0 실측)
 
 | 항목 | 실측 |
@@ -233,7 +264,8 @@ CLI 게이트웨이 재시도는 **1s → 3s, 최대 3회 · 인메모리**입�
 | `upload` | URL·키만 반환 — **rich 조립용**. 고객에게 바로 보내려면 `send --file` |
 | 순수 `end` | **CLI 에 없음.** `end-with-bot` 만 존재 |
 | 설정 변경 | `webhook-domain set` · `chat` · `schedule set` 은 **Admin** 스코프 필요 (BrandWrite 로는 불가) |
-| `--json` 출력 | v1.0.0 **없음** → 텍스트 파싱. **v1.1.0 부터 전역 `--json`** (필드명 = REST). 이 샘플은 v1.0.0 호환을 위해 텍스트 파서를 유지하고, 03 샘플이 `--json` 을 쓴다 |
+| `--json` 출력 | v1.0.0 **없음** → 텍스트 파싱. **v1.1.0 부터 전역 `--json`** (필드명 = REST). 이 샘플은 `--json` 을 먼저 쓰고, JSON 이 아니면(v1.0.0) 텍스트 파서로 폴백한다 |
+| `whoami` (v1.3) | 텍스트가 "상담 가능 채널" 표기로 바뀌어 구 파서는 채널 0개. `--json` 의 `brands` 는 채널 키 목록, `channels[]` 에 상세 |
 
 ---
 
@@ -244,7 +276,8 @@ sample-project/
 ├─ server/
 │  ├─ index.js        HTTP 라우팅 + 정적 서빙 + 부팅 백필
 │  ├─ config.js       .env 로더(의존성 0)
-│  ├─ cli.js          ★ CLI 래퍼 + 출력 파서
+│  ├─ cli.js          ★ CLI 래퍼 (--json 우선, 텍스트 파서 폴백) + 고객 첨부 파싱
+│  ├─ outbox.js       발신 serial 기억 — 조회 항목에 serial 이 없을 때 짝 맞춤
 │  ├─ signature.js    ★ HMAC 서명 검증
 │  ├─ webhook.js      ★ 수신 핸들러(검증→200→멱등→보강→푸시)
 │  ├─ store.js        인메모리 저장소 + 멱등 집합
@@ -277,7 +310,8 @@ sample-project/
 | POST | `/api/send` | `send --text` |
 | POST | `/api/end` | `end-with-bot` |
 | POST | `/api/block` · `/api/unblock` | `block` / `unblock` |
-| POST | `/api/delete` | `delete` |
+| POST | `/api/send/attachments` `{userKey, text?, files[{name,type,dataBase64}]}` | `send --file … [--text]` (임시 파일로 받아 넘기고 지움) |
+| POST | `/api/delete` `{userKey, serial | text, withinSeconds?}` | `delete` |
 
 ---
 
@@ -299,7 +333,7 @@ node <npm root -g>/@blumn-dev/talkbridge-cli/bin/talkbridge-dev.js  whoami
 
 ### 6.2 CLI 출력 파싱
 
-v1.0.0 에는 `--json` 이 없어 텍스트를 파싱합니다. 실측 형식(v1.1.0 은 연도가 붙습니다 — 파서는 둘 다 받습니다):
+v1.1.0+ 는 `--json` 을 쓰고, `--json` 이 없는 v1.0.0 만 텍스트를 파싱합니다. 실측 형식(v1.1.0 은 연도가 붙습니다 — 파서는 둘 다 받습니다):
 
 ```
   · Vjpe_s_fc16k     [진행중]   4건  최신#11  09-08 10:28  "[첨부]"              ← v1.0.0
@@ -307,7 +341,7 @@ v1.0.0 에는 `--json` 이 없어 텍스트를 파싱합니다. 실측 형식(v1
   #10   [message] 09-08 10:23  톡브릿지 가격이 어떻게되나요?
 ```
 
-v1.1.0+ 라면 파서 대신 `--json` 을 쓰는 편이 낫습니다 — [03 샘플의 `server/cli.js`](../03-cli-knowledge-graph/server/cli.js) 가 그 형태입니다.
+텍스트 경로는 긴 본문을 `…` 로 자르므로 고객 첨부 URL 을 온전히 읽지 못합니다(§4.1).
 
 파서는 `server/cli.js` 한 곳에 모여 있습니다. CLI 표기가 바뀌면 여기만 고치면 됩니다.
 `doctor` 의 `[6]` 항목이 "출력은 있는데 파싱 0개"를 잡아 줍니다.
@@ -317,8 +351,13 @@ v1.1.0+ 라면 파서 대신 `--json` 을 쓰는 편이 낫습니다 — [03 샘
 
 ### 6.3 이미지 첨부
 
-고객이 보낸 이미지는 별도 필드가 아니라 **본문 `text` 안에 URL** 로 들어옵니다.
-`public/app.js` 의 `renderText()` 가 URL 을 뽑아 링크 + 썸네일로 렌더합니다.
+고객이 보낸 사진·동영상·음성·파일은 별도 필드가 아니라 본문 `text` 에 줄마다 `[photo] <카카오 CDN URL>( 문구)` 로 들어옵니다.
+`server/cli.js` `parseAttachments()` 가 **호스트가 `talk.kakaocdn.net` 인 https 만** 골라 `attachments[{type,url,comment}]` 로 올리고,
+`public/app.js` `renderBody()` 가 사진은 썸네일, 나머지는 링크 칩으로 그립니다. 고객이 입력한 임의 링크는 이미지로 띄우지 않습니다(추적·SSRF 방지).
+CDN URL 은 `expires` 가 붙은 임시 주소입니다 — 기록에 남기려면 수신 직후 내려받아 보관하세요.
+
+상담원 쪽은 **첨부** 버튼으로 이미지·파일을 여러 개 골라 보내고, 내 말풍선에 마우스를 올려 **발신 취소** 합니다.
+echo 웹훅이 5초 안에 오지 않으면 화면이 대화를 다시 조회해 확정합니다(게이트웨이 sink 미구성 시에도 "전송중" 에 멈추지 않음).
 
 ### 6.4 로컬 개발과 터널
 
@@ -349,9 +388,13 @@ CLI 게이트웨이는 내 PC 에서 도는 데몬이라 `http://127.0.0.1` 로 
 | 증상 | 원인·조치 |
 |---|---|
 | 웹훅이 전부 401 | CLI 의 `--webhook-secret` 과 `.env` 의 `TB_WEBHOOK_SECRET` 불일치 → `npm run doctor` `[4]` 확인 |
-| 이벤트가 안 옴 | `npm run gateway:status` 로 데몬 확인, `~/.bridge-agent/gateway.log` 확인 |
+| 이벤트가 안 옴 | `npm run gateway:status` 로 데몬 확인, `~/.bridge-agent/gateway.log` 에 `Webhook sink 활성 → …/webhook` 이 있는지 확인. **`gateway:setup` 뒤에는 게이트웨이를 재시작해야** sink 가 붙는다 (`talkbridge-dev gateway restart`) |
+| 내 말풍선이 "전송됨(확인 대기)" 로 남음 | echo 웹훅 미도착 — 위 행. 5초 뒤 재조회로 확정된다 |
+| 재기동 뒤 지난 발신에 「발신 취소」 가 없음 | 조회 항목에 serial 이 없어 서버 기억(outbox)이 사라진 것 — 정상(§4.1). 필요하면 `delete --text` 로 |
+| 묶음 첨부 중 일부 실패 | `results[].ok:false` 의 `message` 확인 — 아주 작거나 세로로 긴 이미지는 미지원. 실패한 장만 재발신 |
 | 첫 기동에 과거 메시지 폭주 | 정상. `stream-offsets.json` 이 없어 저널 재생 중 |
-| 상담방 0개로 파싱됨 | CLI 출력 형식 변경 → `server/cli.js` 파서 수정 |
+| 상담방 0개로 파싱됨 | CLI 출력 형식 변경 → `server/cli.js` 파서 수정 (v1.1.0+ 는 `--json` 경로라 영향 없음) |
+| doctor 가 `TB_BRAND 가 허용 채널/브랜드에 없음` | CLI v1.3+ 는 브랜드가 아니라 **채널 키** — `whoami` 의 "상담 가능 채널" 키로 |
 | 발신이 `-509` 등으로 실패 | 세션이 종료·만료됐거나 `userKey` 가 잘못됨. 새 문의가 와야 재개 |
 | 설정 변경이 거부됨 | `schedule set` · `chat` · `webhook-domain set` 은 **Admin** 스코프 필요 |
 | `curl` 로 보낸 한글이 깨져 발송됨 | Windows 에서 한글을 명령행 인자로 넘기면 코드페이지 949 로 재해석됨. `--data-binary @-` 히어독·파일 또는 Node `fetch` 로. (CLI 를 직접 부를 때도 같은 이유로 `server/cli.js` 는 인자를 배열로 넘긴다) |

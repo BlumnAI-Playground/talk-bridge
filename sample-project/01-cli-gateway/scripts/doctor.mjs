@@ -9,7 +9,7 @@ import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
 import { config } from '../server/config.js';
-import { runCli, launcherInfo, parseWhoami, parseRooms } from '../server/cli.js';
+import { runCli, launcherInfo, cliWhoami, cliRooms } from '../server/cli.js';
 
 const ok = (s) => console.log(`  ✓ ${s}`);
 const bad = (s) => console.log(`  ✗ ${s}`);
@@ -39,12 +39,13 @@ ver.code === 0 ? ok(`버전: ${ver.stdout.trim()}`) : bad(`--version 실패: ${v
 
 /* 3. 인증 */
 console.log('\n[3] 인증 (whoami)');
-const who = await runCli(['whoami']);
-if (who.code !== 0) {
+// cliWhoami 는 --json(v1.1.0+) 을 먼저 쓰고 텍스트로 폴백한다 — v1.3 의 "상담 가능 채널" 표기도 처리
+const me = await cliWhoami().catch((err) => {
   bad(`whoami 실패 — ${config.cli} login 으로 먼저 인증하세요`);
-  console.log(who.stdout + who.stderr);
-} else {
-  const me = parseWhoami(who.stdout);
+  console.log(err.message);
+  return null;
+});
+if (me) {
   ok(`이름: ${me.name}`);
   ok(`엔드포인트: ${me.endpoint}`);
   me.scope === 'BrandWrite' || me.scope === 'Admin'
@@ -53,7 +54,7 @@ if (who.code !== 0) {
 
   me.brands.includes(config.brand)
     ? ok(`브랜드 ${config.brand} 접근 가능`)
-    : bad(`TB_BRAND=${config.brand} 가 허용 브랜드에 없음 (허용: ${me.brands.join(', ') || '없음'})`);
+    : bad(`TB_BRAND=${config.brand} 가 허용 채널/브랜드에 없음 (허용: ${me.brands.join(', ') || '없음'}) — v1.3+ 는 whoami 의 "상담 가능 채널" 키를 넣으세요`);
 }
 
 /* 4. 설정 파일 */
@@ -98,16 +99,13 @@ const gwOut = (gw.stdout + gw.stderr).trim();
 
 /* 6. 상담방 */
 console.log('\n[6] 상담 데이터');
-const rooms = await runCli(['rooms', '--brand', config.brand, '--max', '5']);
-if (rooms.code !== 0) {
-  bad(`rooms 실패: ${(rooms.stderr || rooms.stdout).trim()}`);
-} else {
-  const parsed = parseRooms(rooms.stdout);
-  ok(`상담방 ${parsed.length}개 파싱됨`);
-  for (const r of parsed) console.log(`     · ${r.userKey}  [${r.status}]  최신#${r.lastSeq}  "${r.lastText}"`);
-  if (!parsed.length && rooms.stdout.trim()) {
-    warn('출력은 있는데 파싱된 방이 0개입니다 — CLI 출력 형식이 바뀌었을 수 있습니다(server/cli.js 파서 확인)');
-  }
+try {
+  const parsed = await cliRooms(5);
+  ok(`상담방 ${parsed.length}개 조회됨`);
+  for (const r of parsed) console.log(`     · ${r.userKey}  [${r.status}]  최신#${r.lastSeq}  "${r.lastText.slice(0, 40)}"`);
+  if (!parsed.length) warn('상담방 0개 — 고객이 채널에 문의를 보내면 생깁니다(텍스트 폴백이면 server/cli.js 파서 확인)');
+} catch (err) {
+  bad(`rooms 실패: ${err.message}`);
 }
 
 /* 7. 서명 자기검증 */

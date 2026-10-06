@@ -210,6 +210,36 @@ button.danger { color: var(--danger); }
 .bubble a { color: var(--accent); }
 .bubble img { display: block; max-width: 260px; border-radius: 8px; margin-top: 4px; }
 
+/* 고객 첨부 — 본문의 "[photo] 카카오CDN URL" 줄을 썸네일·링크로 바꾼 것 */
+.attachments { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.attachments a.photo img { width: 120px; height: 120px; object-fit: cover; margin: 0; }
+.attachments a.photo:only-child img { width: auto; height: auto; max-width: 260px; max-height: 320px; }
+.attachments .file-chip {
+  display: inline-block;
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  font-size: 12px;
+  text-decoration: none;
+}
+.attachments .caption { flex-basis: 100%; }
+
+/* 발신 취소 */
+.msg.deleted .bubble { opacity: .5; text-decoration: line-through; }
+.msg-meta .del {
+  margin-left: 6px;
+  padding: 0 6px;
+  font-size: 10px;
+  line-height: 16px;
+  color: var(--danger);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+.msg:not(:hover) .msg-meta .del { visibility: hidden; }
+.msg-meta .del:hover:not(:disabled) { border-color: var(--danger); background: transparent; }
+
 .msg-meta {
   margin-top: 2px;
   font-size: 10px;
@@ -246,6 +276,38 @@ button.danger { color: var(--danger); }
   font-weight: 600;
 }
 .composer button:hover:not(:disabled) { background: #2559b8; }
+.composer button.attach {
+  padding: 0 12px;
+  background: var(--panel);
+  color: var(--ink);
+  border-color: var(--line);
+  font-weight: 400;
+}
+.composer button.attach:hover:not(:disabled) { background: #f2f4f7; }
+
+/* 보낼 첨부 목록 */
+.attach-tray {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 10px 0;
+  border-top: 1px solid var(--line);
+}
+.attach-tray:empty { display: none; }
+.attach-tray + .composer { border-top: 0; }
+.attach-tray .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 12px;
+  background: var(--bg);
+}
+.attach-tray .chip img { width: 28px; height: 28px; object-fit: cover; border-radius: 4px; }
+.attach-tray .chip button { padding: 0 6px; font-size: 12px; line-height: 18px; }
 
 .hint {
   flex: 0 0 auto;

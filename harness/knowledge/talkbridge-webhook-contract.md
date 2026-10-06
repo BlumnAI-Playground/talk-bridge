@@ -29,6 +29,13 @@ content-type:         application/json; charset=utf-8
 | `reference` | 불필요 | 새 상담 연결(세션 시작) |
 | `expired` | 불필요 | 세션 만료 |
 | `ended` | 불필요 | 상담 종료 |
+| `deleted` | 불필요 | 발신 취소(삭제) — `serial` 로 원 발신 대조. 묶음은 장 수만큼 온다. 다른 상담 도구에서 지운 것도 온다 |
+
+추가 필드(2026-10-06 매뉴얼): `agent` 접수 신호 `phase:"accepted"`·`serial`(seq 없음), 저널 `agent` 의 `serial`·`serials[]`(첨부 발신),
+`deleted` 의 `serial`, `message` 의 `extra`, `reference` 의 `reference.extra`·`lastReference`.
+**CLI 게이트웨이 v1.3.1 실측(2026-10-06)**: 위 필드가 그대로 온다 — `{kind:agent, phase:accepted, serial}` → `{kind:agent, seq, serial, serials[]}` → 장마다 `{kind:deleted, seq, serial}`.
+`gateway:setup` 으로 sink 를 바꾼 뒤에는 **게이트웨이 재시작**해야 붙는다(로그 `Webhook sink 활성 → …`).
+센터 「연결 테스트」 신호는 `test:true`, `userKey: tb-test-…`, `seq:0` — **멱등 처리 전에 분기**해야 `(brand,0)` 을 오염시키지 않는다.
 
 ## 2. 서명 (HMAC-SHA256, 양쪽 게이트웨이 동일)
 
@@ -72,6 +79,7 @@ CLI 게이트웨이는 `setup --webhook-secret` 으로 직접 지정하며 `.env
 - `X-Bridge-Delivery-Id` 멱등 2건, 중복 전달 없음. 페이로드 `{userKey, kind, seq, brand}` 본문 없음 — 01 과 동일
 - **`agent` echo 는 발신 1건에 두 번 온다**: ① 즉시 `{userKey, kind:"agent", brand}` (**seq 없음**), ② ~1초 뒤 `{…, seq:N}` 저널 항목.
   ①을 메시지로 저장하면 말풍선이 중복된다 → 핸들러는 seq 없는 `agent` 를 저장하지 않고 신호로만 취급해야 한다.
+  2026-10-06 매뉴얼: ①에 `phase:"accepted"`·`serial` 이 붙는다 — **`phase` 로 구분**하고 seq 부재는 옛 코어 대비 보조 조건 (02 반영, CF-008 해소)
   검수 시 `seq == null` 인 agent 처리와 pending 말풍선 정리(`store.upsertMessage`)가 01·02 양쪽에 있는지 확인
   → 문서화·식별 필드 개선 예고: [cli-feat/CF-008](cli-feat/v1.0.0/CF-008-hosted-gateway-agent-echo.md)
 - REST 봉투: `me` → `{name, scope, brands}` (봉투 없음), `rooms` → `{ok, brand, rooms[]}`, `messages` → `{ok, brand, userKey, messages[]}` **최신순**. 필드는 요약 §7 과 정확히 일치

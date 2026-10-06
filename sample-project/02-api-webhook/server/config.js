@@ -70,8 +70,11 @@ export const config = {
   /** 상담방 하나당 메모리에 유지할 최대 메시지 수 */
   maxMessagesPerRoom: Number(process.env.TB_MAX_MESSAGES || 200),
 
-  /** REST 호출 타임아웃(ms) */
+  /** REST 호출 타임아웃(ms). 첨부 발신은 이 값의 4배를 쓴다 */
   apiTimeoutMs: Number(process.env.TB_API_TIMEOUT_MS || 15000),
+
+  /** 첨부 발신 1회의 파일 합계 상한(MB) — 이 서버가 메모리로 받아 넘기는 크기의 상한 */
+  maxUploadBytes: Number(process.env.TB_MAX_UPLOAD_MB || 10) * 1024 * 1024,
 };
 
 export const webhookPath = '/webhook';

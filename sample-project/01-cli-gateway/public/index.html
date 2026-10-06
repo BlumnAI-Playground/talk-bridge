@@ -43,7 +43,10 @@
         </div>
       </div>
 
+      <div id="attach-tray" class="attach-tray"></div>
       <form id="composer" class="composer">
+        <button id="btn-attach" type="button" class="attach" disabled title="CLI send --file — 이미지·파일 첨부">첨부</button>
+        <input id="file-input" type="file" multiple hidden>
         <textarea id="input" rows="2" placeholder="답장을 입력하세요 (Enter 전송 · Shift+Enter 줄바꿈)" disabled></textarea>
         <button id="btn-send" type="submit" disabled>전송</button>
       </form>

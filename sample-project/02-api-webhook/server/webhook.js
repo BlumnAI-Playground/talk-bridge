@@ -1,13 +1,15 @@
 import { verifySignature } from './signature.js';
 import { roomMessages } from './api.js';
 import * as store from './store.js';
+import * as outbox from './outbox.js';
 import { broadcast } from './sse.js';
 
 /**
  * ── 수신 웹훅 핸들러 ──────────────────────────────────────────────────────
  *
- * 01 샘플의 webhook.js 와 **동일한 코드**다. 다른 점은 본문 조회 한 곳뿐:
- *   01: CLI `rooms --user` (cli.js)   →   02: REST rooms/{userKey}/messages (api.js)
+ * 01 샘플의 webhook.js 와 같은 뼈대다. 다른 점:
+ *   - 본문 조회: 01 CLI `rooms --user` (cli.js)  →  02 REST rooms/{userKey}/messages (api.js)
+ *   - 신호 처리(연결 테스트 test:true · 접수 phase:"accepted" · 발신 취소 kind:"deleted")는 01 과 같다
  * 서명 스킴·페이로드·처리 순서는 CLI 게이트웨이와 호스티드 게이트웨이가 같다.
  *
  * 게이트웨이가 보내는 것은 "본문 없는 신호"다. 실측 페이로드:
@@ -35,6 +37,7 @@ const KIND_LABEL = {
   reference: '새 상담 연결',
   expired: '세션 만료',
   ended: '상담 종료',
+  deleted: '발신 취소(삭제)',
 };
 
 export async function handleWebhook(req, res, rawBody) {
@@ -71,6 +74,14 @@ async function process$(rawBody, deliveryId) {
 
   const { brand, userKey, kind, seq } = evt;
 
+  // 센터 「연결 테스트」 신호 — 가상 고객(tb-test-…)이라 본문 조회·답장이 안 되고 seq 가 항상 0 이다.
+  // 멱등 집합에 (brand, 0) 을 넣기 전에 분기한다. 서명 검증·200 응답까지 통과한 것이 확인 대상이다.
+  if (evt.test === true) {
+    console.log(`[webhook] 연결 테스트 신호 수신 · ${userKey} — 서명 통과`);
+    broadcast('test', { brand, userKey, kind });
+    return;
+  }
+
   // 4) 멱등 — Delivery-Id 우선, 그다음 (brand, seq)
   if (store.isDuplicateDelivery(deliveryId)) {
     console.log(`[webhook] 중복 전달 스킵 delivery=${deliveryId}`);
@@ -81,7 +92,7 @@ async function process$(rawBody, deliveryId) {
     return;
   }
 
-  console.log(`[webhook] ${KIND_LABEL[kind] || kind} · ${userKey} #${seq}`);
+  console.log(`[webhook] ${KIND_LABEL[kind] || kind} · ${userKey} ${seq != null ? `#${seq}` : `(${evt.phase || 'seq 없음'})`}${evt.serial ? ` · ${evt.serial}` : ''}`);
 
   // 5) kind 분기
   switch (kind) {
@@ -103,13 +114,35 @@ async function process$(rawBody, deliveryId) {
       });
       break;
 
+    case 'deleted': {
+      // 발신 취소(삭제) — serial 이 지운 말풍선이다. 묶음 이미지를 모두 지우면 장 수만큼 온다.
+      // 이 샘플에서 지웠든 다른 상담 도구에서 지웠든 같은 신호로 화면을 맞춘다.
+      for (const m of store.getMessages(userKey)) {
+        if (!evt.serial || m.direction !== 'out') continue;
+        if (Array.isArray(m.serials) && m.serials.length > 1) {
+          // 묶음 발신 — 모든 장이 지워졌을 때만 삭제 표시(REST 조회의 deleted 와 같은 규칙)
+          if (!m.serials.includes(evt.serial)) continue;
+          m.deletedSerials = [...new Set([...(m.deletedSerials || []), evt.serial])];
+          if (m.deletedSerials.length >= m.serials.length) m.deleted = true;
+        } else if (m.serial === evt.serial) {
+          m.deleted = true;
+        }
+      }
+      store.upsertMessage(userKey, {
+        seq, kind, serial: evt.serial ?? null, text: '— 보낸 메시지를 삭제했습니다 —',
+        at: new Date().toISOString(), direction: 'system',
+      });
+      break;
+    }
+
     case 'message':
     case 'agent': {
-      // 호스티드 게이트웨이는 발신 1건에 agent 를 두 번 보낸다(실측):
-      //   ① seq 없는 즉시 신호  ② 1초 뒤 seq 있는 저널 항목
+      // 호스티드 게이트웨이는 발신 1건에 agent 를 두 번 보낸다:
+      //   ① 접수 신호 phase:"accepted" · serial (seq 없음)   ② 약 1초 뒤 seq · serial 있는 저널 항목
       // ①은 저장하면 말풍선이 중복되므로 "발신 접수" 신호로만 쓰고 넘긴다.
-      if (kind === 'agent' && seq == null) {
-        broadcast('ack', { brand, userKey });
+      // 구분은 phase 로 한다(매뉴얼 권고). seq 부재는 phase 가 없던 옛 코어 대비 보조 조건.
+      if (kind === 'agent' && (evt.phase === 'accepted' || seq == null)) {
+        broadcast('ack', { brand, userKey, serial: evt.serial ?? null });
         return;
       }
       // 본문이 payload 에 없으므로 REST 로 최근 메시지를 끌어와 seq 로 맞춘다.
@@ -118,7 +151,13 @@ async function process$(rawBody, deliveryId) {
       //  - 자동응답 로직이 있다면 여기서 반드시 걸러야 무한 루프가 안 난다.
       //  - 이 샘플은 사람이 직접 답장하는 상담 화면이라, echo 는 "발신 완료" 표시로 쓴다.
       const enriched = await enrich(userKey, seq, kind);
-      store.upsertMessage(userKey, enriched);
+      // 첨부 발신(여러 말풍선)의 저널 항목에는 serials 에 전체 목록이 온다 — 묶음 삭제 대조용
+      if (kind === 'agent') {
+        if (evt.serial && !enriched.serial) enriched.serial = evt.serial;
+        if (Array.isArray(evt.serials) && evt.serials.length) enriched.serials = evt.serials;
+      }
+      // echo 에 serial 이 없으면(코어에 따라) 이 서버가 기억해 둔 발신 serial 을 붙인다
+      store.upsertMessage(userKey, outbox.claim(userKey, enriched));
       if (kind === 'message') {
         store.markRoomStatus(userKey, '진행중');
         store.bumpUnread(userKey);
@@ -157,7 +196,11 @@ async function enrich(userKey, seq, kind) {
 
     // seq 가 아직 조회에 안 잡히는 경우(영속 지연) — 같은 kind 의 최신 것으로 근사
     const near = [...msgs].reverse().find((m) => m.kind === kind);
-    if (near) return { ...base, text: near.text, at: near.at || base.at };
+    if (near) {
+      const approx = { ...base, text: near.text, at: near.at || base.at };
+      if (near.attachments) approx.attachments = near.attachments;
+      return approx;
+    }
 
     return { ...base, text: '(본문 조회 실패 — 잠시 후 새로고침)' };
   } catch (err) {
