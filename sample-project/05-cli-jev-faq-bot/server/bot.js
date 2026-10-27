@@ -3,6 +3,27 @@ import { cliRoomMessages, cliSend, cliEndWithBot } from './cli.js';
 import { systemOne, jevReady, topN } from './jev.js';
 import { loadRules, OFF_TOPIC } from './rules.js';
 import { broadcast } from './sse.js';
+import * as outbox from './outbox.js';
+
+const ATTACH_LABEL = { photo: '사진', video: '동영상', audio: '음성 메시지', file: '파일' };
+
+/**
+ * 고객 첨부 줄(`[photo] 카카오CDN URL`)은 모델에 URL 대신 "(고객이 첨부를 보냈습니다: 사진 2장)" 으로 넘긴다.
+ * CDN URL 은 서명이 붙은 임시 접근 주소이고 고객 개인정보가 담길 수 있다 — 외부 AI 로 보내지 않는다.
+ * 첨부와 함께 입력한 문구(comment)와 다른 줄의 텍스트는 그대로 둔다.
+ */
+function textForModel(m) {
+  if (!m.attachments?.length) return m.text;
+  const rest = String(m.text ?? '').split('\n')
+    .filter((line) => !/^\[(?:photo|video|audio|file)\] /.test(line.trim()))
+    .join('\n').trim();
+  const counts = {};
+  for (const a of m.attachments) counts[a.type] = (counts[a.type] || 0) + 1;
+  const what = Object.entries(counts).map(([t, n]) => `${ATTACH_LABEL[t] || t} ${n}${t === 'photo' ? '장' : '개'}`).join(', ');
+  const comments = m.attachments.map((a) => a.comment).filter(Boolean);
+  return [`(고객이 첨부를 보냈습니다: ${what})`, ...comments, rest].filter(Boolean).join('\n');
+}
+
 
 /**
  * ── Jev 자동응대 엔진 ─────────────────────────────────────────────────────
@@ -436,7 +457,7 @@ export async function transcriptFor(userKey, state, limit) {
 
   const items = all
     .filter((m) => (m.kind === 'message' || m.kind === 'agent') && m.seq >= fromSeq)
-    .map((m) => ({ role: m.kind === 'agent' ? 'assistant' : 'user', text: m.text, at: m.at }));
+    .map((m) => ({ role: m.kind === 'agent' ? 'assistant' : 'user', text: m.kind === 'message' ? textForModel(m) : m.text, at: m.at }));
 
   // 저널에 아직 안 잡힌 봇 답장(발신 직후·dry-run)을 시각 순으로 끼워 넣는다 — Jev 가 "직전 봇 질문" 을 알아야 한다
   const firstAt = items[0]?.at || '';
@@ -515,7 +536,10 @@ async function runLiveTurn(userKey) {
 async function deliver(userKey, text, live) {
   if (!text) return { ok: false, raw: '빈 답장' };
   if (!live) return { ok: true, raw: 'dry-run (실발신 꺼짐)' };
-  return cliSend(userKey, text);
+  const r = await cliSend(userKey, text);
+  // 봇 답장도 serial 을 기억해 둔다 — 운영자가 모니터에서 잘못 나간 답장을 발신 취소할 수 있다
+  if (r.ok) outbox.record(userKey, { texts: [text], serials: [r.serial] });
+  return r;
 }
 
 export function pause(userKey, reason) {

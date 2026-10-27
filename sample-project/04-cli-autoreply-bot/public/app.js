@@ -40,6 +40,7 @@ const state = {
   messages: [],
   sending: false,
   unseen: 0,
+  files: [],         // 보낼 첨부 File[]
 };
 
 /* ── 유틸 ─────────────────────────────────────────────────────────── */
@@ -50,13 +51,57 @@ function esc(s) {
   ));
 }
 
+/** 본문의 URL 은 링크로만 만든다 — 임의 URL 을 <img> 로 띄우지 않는다(고객이 입력한 링크일 수 있다). */
 function renderText(text) {
-  const raw = String(text ?? '');
-  let html = esc(raw).replace(/https?:\/\/[^\s<>&]+/g, (u) => `<a href="${u}" target="_blank" rel="noreferrer">${u}</a>`);
-  for (const u of raw.match(/https?:\/\/[^\s<>"']+/g) || []) {
-    if (/\.(png|jpe?g|gif|webp|bmp)(\?|$)/i.test(u)) html += `<img src="${esc(u)}" alt="첨부 이미지" loading="lazy">`;
+  return esc(text).replace(/https?:\/\/[^\s<>&]+/g, (u) => `<a href="${u}" target="_blank" rel="noreferrer">${u}</a>`);
+}
+
+const ATTACH_LABEL = { photo: '사진', video: '동영상', audio: '음성', file: '파일' };
+const DELETE_WINDOW_MS = 24 * 60 * 60 * 1000; // 발신 취소는 발송 후 24시간까지
+const ECHO_WAIT_MS = 5000; // 이 시간 안에 agent echo 가 안 오면 대화를 다시 조회해 확정한다
+
+/**
+ * 고객 첨부는 본문 text 안에 "[photo] 카카오CDN URL" 줄로 들어온다.
+ * 서버(cli.js parseAttachments)가 카카오 CDN 호스트만 골라 m.attachments 로 올려 주므로,
+ * 그 줄은 본문에서 빼고 사진은 썸네일, 나머지는 링크 칩으로 그린다. (01 과 같은 렌더)
+ */
+function renderBody(m) {
+  const atts = m.attachments || [];
+  if (!atts.length) return renderText(m.text);
+
+  const urls = new Set(atts.map((a) => a.url));
+  const rest = String(m.text ?? '').split('\n')
+    .filter((line) => {
+      const hit = /^\[(?:photo|video|audio|file)\] (\S+)/.exec(line.trim());
+      if (!hit) return true;
+      try { return !urls.has(new URL(hit[1]).href); } catch { return true; }
+    })
+    .join('\n').trim();
+
+  const items = atts.map((a) => {
+    const href = esc(a.url);
+    const cap = a.comment ? `<span class="caption">${esc(a.comment)}</span>` : '';
+    if (a.type === 'photo') {
+      return `<a class="photo" href="${href}" target="_blank" rel="noreferrer"><img src="${href}" alt="고객 사진" loading="lazy"></a>${cap}`;
+    }
+    return `<a class="file-chip" href="${href}" target="_blank" rel="noreferrer">${ATTACH_LABEL[a.type] || esc(a.type)} 열기</a>${cap}`;
+  });
+  return (rest ? renderText(rest) : '') + `<div class="attachments">${items.join('')}</div>`;
+}
+
+/** 지울 말풍선 serial 목록 — 묶음 첨부 발신은 장마다 serial 이 따로 있고, 삭제도 장마다 한다. */
+function serialsOf(m) {
+  if (Array.isArray(m.serials) && m.serials.length > 1) {
+    return m.serials.filter((s) => !(m.deletedSerials || []).includes(s));
   }
-  return html;
+  return m.serial ? [m.serial] : [];
+}
+
+/** 봇 답장도 상담원 답장도 serial 이 있으면 취소할 수 있다(dry-run 점선 말풍선은 발신된 적이 없어 제외). */
+function canDelete(m) {
+  if (m.direction !== 'out' || !m.serial || m.deleted || m.shadow) return false;
+  const at = m.at ? Date.parse(m.at) : NaN;
+  return Number.isNaN(at) || Date.now() - at < DELETE_WINDOW_MS;
 }
 
 const pad = (n) => String(n).padStart(2, '0');
@@ -615,9 +660,12 @@ function renderMessages() {
   for (const m of list) {
     const dir = m.direction || (m.kind === 'agent' ? 'out' : 'in');
     const div = document.createElement('div');
-    div.className = `msg ${dir}${m.pending ? ' pending' : ''}${m.shadow ? ' shadow' : ''}`;
-    const meta = [m.seq != null ? `#${m.seq}` : '', m.at ? hm(m.at) : '', m.pending ? '전송중' : '', m.shadow ? 'dry-run · 발신 안 됨' : ''].filter(Boolean).join(' · ');
-    div.innerHTML = `<div class="bubble">${renderText(m.text)}</div><div class="msg-meta">${esc(meta)}</div>`;
+    div.className = `msg ${dir}${m.pending ? ' pending' : ''}${m.shadow ? ' shadow' : ''}${m.deleted ? ' deleted' : ''}`;
+    const meta = [m.seq != null ? `#${m.seq}` : '', m.at ? hm(m.at) : '', m.pending ? (m.serial ? '전송됨(확인 대기)' : '전송중') : '', m.shadow ? 'dry-run · 발신 안 됨' : '', m.deleted ? '삭제됨' : ''].filter(Boolean).join(' · ');
+    const del = canDelete(m)
+      ? `<button type="button" class="del" data-serials="${esc(serialsOf(m).join(' '))}" title="CLI delete --serial">발신 취소</button>`
+      : '';
+    div.innerHTML = `<div class="bubble">${renderBody(m)}</div><div class="msg-meta">${esc(meta)}${del}</div>`;
     box.appendChild(div);
   }
   box.scrollTop = box.scrollHeight;
@@ -656,6 +704,7 @@ function updateComposer() {
   const can = Boolean(state.active) && !state.sending;
   $('input').disabled = !can;
   $('btn-send').disabled = !can;
+  $('btn-attach').disabled = !can;
 }
 
 async function loadRooms() {
@@ -705,14 +754,20 @@ $('btn-bot-toggle').addEventListener('click', async () => {
 $('composer').addEventListener('submit', async (e) => {
   e.preventDefault();
   const t = $('input').value.trim();
-  if (!t || !state.active) return;
+  if (!state.active) return;
+  if (state.files.length) { $('input').value = ''; return sendAttachments(t); }
+  if (!t) return;
   $('input').value = '';
   state.sending = true;
   updateComposer();
-  state.messages.push({ seq: null, kind: 'agent', direction: 'out', text: t, at: new Date().toISOString(), pending: true });
+  const optimistic = { seq: null, kind: 'agent', direction: 'out', text: t, at: new Date().toISOString(), pending: true };
+  state.messages.push(optimistic);
   renderMessages();
   try {
-    await api('/api/send', { method: 'POST', body: JSON.stringify({ userKey: state.active, text: t }) });
+    const { serial } = await api('/api/send', { method: 'POST', body: JSON.stringify({ userKey: state.active, text: t }) });
+    optimistic.serial = serial; // serial 이 생겼으니 발신 취소 버튼을 바로 보인다
+    renderMessages();
+    confirmLater(state.active);
   } catch (err) {
     state.messages = state.messages.filter((m) => !m.pending);
     renderMessages();
@@ -791,3 +846,106 @@ async function boot() {
 }
 
 boot();
+
+/* ── 첨부 발신 · 발신 취소 (01 과 같은 계약) ───────────────────────────── */
+
+/** 열린 방의 대화를 화면 깜빡임 없이 다시 조회한다. */
+async function reloadMessages(userKey) {
+  if (state.active !== userKey) return;
+  try {
+    const { messages } = await api(`/api/rooms/${encodeURIComponent(userKey)}/messages`);
+    if (state.active === userKey) {
+      state.messages = messages;
+      renderMessages();
+    }
+  } catch { /* 다음 echo·새로고침에서 맞춰진다 */ }
+}
+
+/** echo 웹훅이 안 오는 환경에서도 "전송중" 에 멈추지 않도록 잠시 뒤 다시 조회한다. */
+function confirmLater(userKey, force = false) {
+  setTimeout(() => {
+    if (state.active !== userKey) return;
+    if (!force && !state.messages.some((m) => m.pending)) return;
+    reloadMessages(userKey);
+  }, ECHO_WAIT_MS);
+}
+
+function renderTray() {
+  const tray = $('attach-tray');
+  tray.innerHTML = '';
+  state.files.forEach((f, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'chip';
+    const thumb = f.type.startsWith('image/') ? `<img src="${URL.createObjectURL(f)}" alt="">` : '';
+    chip.innerHTML = `${thumb}${esc(f.name)} <span class="muted">${Math.ceil(f.size / 1024)}KB</span>`;
+    const x = document.createElement('button');
+    x.type = 'button';
+    x.className = 'ghost';
+    x.textContent = '×';
+    x.title = '빼기';
+    x.addEventListener('click', () => { state.files.splice(i, 1); renderTray(); });
+    chip.appendChild(x);
+    tray.appendChild(chip);
+  });
+}
+
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result).split(',')[1] || '');
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(file);
+  });
+}
+
+/** 첨부 발신 — text 는 첫 말풍선에 실린다(이미지면 캡션). 상담원이 보내므로 그 방의 봇은 서버가 정지시킨다. */
+async function sendAttachments(text) {
+  const userKey = state.active;
+  state.sending = true;
+  updateComposer();
+  try {
+    const files = await Promise.all(state.files.map(async (f) => ({ name: f.name, type: f.type, dataBase64: await toBase64(f) })));
+    const { results } = await api('/api/send/attachments', { method: 'POST', body: JSON.stringify({ userKey, text: text || undefined, files }) });
+    state.files = [];
+    renderTray();
+    const failed = results.filter((r) => !r.ok);
+    if (failed.length) alert(`일부 첨부가 전송되지 않았습니다\n\n${failed.map((r) => `· ${r.kind}: ${r.message || r.code}`).join('\n')}`);
+    confirmLater(userKey, true); // 첨부는 낙관적 말풍선이 없으니 echo 가 없으면 재조회로 보인다
+  } catch (err) {
+    if (!$('input').value) $('input').value = text;
+    alert(`첨부 발신 실패\n\n${err.message}`);
+  } finally {
+    state.sending = false;
+    updateComposer();
+  }
+}
+
+async function deleteSent(serials) {
+  const userKey = state.active;
+  if (!userKey || !serials.length) return;
+  const what = serials.length > 1 ? `말풍선 ${serials.length}개(묶음 첨부)를` : '이 메시지를';
+  if (!confirm(`${what} 삭제할까요?\n\n고객 채팅방에 「메시지가 삭제되었습니다」 안내가 남고, 상담 건수는 돌아오지 않습니다.`)) return;
+  // 삭제 단위는 말풍선 1개 — 한 번 호출로 묶음 전체가 지워지지 않는다.
+  for (const serial of serials) {
+    try {
+      await api('/api/delete', { method: 'POST', body: JSON.stringify({ userKey, serial }) });
+    } catch (err) {
+      alert(`발신 취소 실패\n\n${err.message}`);
+      return;
+    }
+  }
+  // 확정 표시는 kind:"deleted" 웹훅이 한다. 그 전까지 화면에서도 바로 지운 것처럼 보이게 한다.
+  for (const m of state.messages) if (serials.includes(m.serial)) m.deleted = true;
+  renderMessages();
+}
+
+$('btn-attach').addEventListener('click', () => $('file-input').click());
+$('file-input').addEventListener('change', () => {
+  state.files.push(...$('file-input').files);
+  $('file-input').value = '';
+  renderTray();
+});
+$('messages').addEventListener('click', (e) => {
+  const btn = e.target.closest('button.del');
+  if (btn) deleteSent(btn.dataset.serials.split(' ').filter(Boolean));
+});

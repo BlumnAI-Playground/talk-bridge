@@ -104,7 +104,10 @@
           <p class="muted">게이트웨이가 떠 있으면 고객 메시지와 봇 응답이 실시간으로 들어옵니다.</p>
         </div>
       </div>
+      <div id="attach-tray" class="attach-tray"></div>
       <form id="composer" class="composer">
+        <button id="btn-attach" type="button" class="attach" disabled title="CLI send --file — 이미지·파일 첨부 (보내면 이 방의 봇은 정지)">첨부</button>
+        <input id="file-input" type="file" multiple hidden>
         <textarea id="input" rows="2" placeholder="상담원 직접 답장 — 보내면 이 방의 봇은 정지됩니다" disabled></textarea>
         <button id="btn-send" type="submit" disabled>전송</button>
       </form>
