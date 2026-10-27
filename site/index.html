@@ -67,8 +67,8 @@
     .nav-logo:not(:hover) .brand-logo .fr { animation: none; }
     .nav-logo:not(:hover) .brand-logo .fr[style="animation-name:f1"] { opacity: 1; }
     .nav-logo span { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: #fff; letter-spacing: -.02em; line-height: 1; }
-    .nav-links { display: flex; gap: 28px; list-style: none; }
-    .nav-links a { color: #c2c5cf; text-decoration: none; font-size: .95rem; font-weight: 500; transition: color .15s; }
+    .nav-links { display: flex; gap: 22px; list-style: none; margin-left: auto; }
+    .nav-links a { color: #c2c5cf; text-decoration: none; font-size: .95rem; font-weight: 500; transition: color .15s; white-space: nowrap; }
     .nav-links a:hover { color: #fff; }
     .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 8px; flex-direction: column; gap: 5px; color: #c2c5cf; }
     .nav-hamburger span { display: block; width: 22px; height: 2px; background: #c2c5cf; border-radius: 2px; transition: transform .2s, opacity .2s; }
@@ -79,10 +79,23 @@
     .nav-mobile.open { display: block; }
     .nav-mobile li { padding: 8px 0; }
     .nav-mobile a { color: #c2c5cf; text-decoration: none; font-size: 1rem; font-weight: 500; }
-    .nav-search { display: flex; align-items: center; gap: 8px; padding: 6px 14px; border: 1px solid rgba(255,255,255,.1); border-radius: 8px; background: #ffffff08; color: #8a8fa3; font-size: .85rem; text-decoration: none; transition: border-color .15s, color .15s; white-space: nowrap; }
-    .nav-search:hover { border-color: #fff3; color: #c2c5cf; }
-    .nav-search svg { width: 16px; height: 16px; opacity: .6; }
-    @media (max-width: 720px) { .nav-links { display: none } .nav-search { display: none } .nav-hamburger { display: flex } }
+    .nav-mobile-group { font: 600 .7rem 'JetBrains Mono', monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--mute); padding-bottom: 0 !important; }
+    .nav-mobile-sep { border-top: 1px solid rgba(255,255,255,.08); margin: 8px 0; padding: 0 !important; }
+    @media (max-width: 720px) { .nav-links { display: none } .nav-hamburger { display: flex } }
+
+    /* ---- 홈 섹션 레일 (오른쪽 고정) ---- 넓으면 이름까지, 좁으면 점만(호버 시 이름) */
+    .page-rail { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); z-index: 90; display: flex; flex-direction: column; gap: 14px; align-items: flex-end; }
+    .page-rail a { position: relative; display: flex; align-items: center; justify-content: flex-end; gap: 10px; text-decoration: none; color: var(--mute); font: 500 .75rem 'JetBrains Mono', monospace; padding: 2px 0; transition: color .15s; }
+    .page-rail i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.22); flex-shrink: 0; transition: background .15s, transform .15s, box-shadow .15s; }
+    .page-rail a:hover { color: #fff; }
+    .page-rail a:hover i { background: #fff; }
+    .page-rail a.active { color: var(--teal); }
+    .page-rail a.active i { background: var(--teal); transform: scale(1.3); box-shadow: 0 0 0 4px var(--teal-dim); }
+    @media (max-width: 1439px) {
+      .page-rail .rail-label { position: absolute; right: 20px; white-space: nowrap; background: #0d0d14; border: 1px solid rgba(255,255,255,.1); border-radius: 6px; padding: 3px 8px; opacity: 0; pointer-events: none; transform: translateX(4px); transition: opacity .15s, transform .15s; }
+      .page-rail a:hover .rail-label, .page-rail a:focus-visible .rail-label { opacity: 1; transform: none; }
+    }
+    @media (max-width: 1000px) { .page-rail { display: none } }
 
     /* ---- HERO ---- */
     .hero {
@@ -596,16 +609,9 @@
 </svg>
         <span>TalkBridge</span>
       </a>
-      <a href="https://api.talkbridge.io/" class="nav-search" target="_blank" rel="noopener">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
-        <span data-i18n="nav.search">문서 검색</span>
-      </a>
       <ul class="nav-links">
-        <li><a href="#features">Features</a></li>
-        <li><a href="#autoreply">Auto-Reply</a></li>
-        <li><a href="#get-started">Get Started</a></li>
+        <li><a href="updates.html" data-keep-lang>Updates</a></li>
         <li><a href="https://api.talkbridge.io/" target="_blank" rel="noopener">Docs</a></li>
-        <li><a href="https://github.com/BlumnAI-Playground/talk-bridge#샘플" target="_blank" rel="noopener">Samples</a></li>
         <li><a href="https://discord.com/invite/xhPhgUFjew" target="_blank" rel="noopener">Discord</a></li>
         <li><a href="https://github.com/BlumnAI-Playground/talk-bridge" target="_blank" rel="noopener">GitHub</a></li>
       </ul>
@@ -616,15 +622,23 @@
       <button class="nav-hamburger" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
     <ul class="nav-mobile">
-      <li><a href="https://api.talkbridge.io/" target="_blank" rel="noopener" data-i18n="nav.search">문서 검색</a></li>
-      <li><a href="#features">Features</a></li>
-      <li><a href="#autoreply">Auto-Reply</a></li>
+      <li class="nav-mobile-group" data-i18n="nav.onpage">이 페이지</li>
       <li><a href="#get-started">Get Started</a></li>
+      <li><a href="#autoreply">Auto-Reply</a></li>
+      <li><a href="#features">Features</a></li>
+      <li class="nav-mobile-sep" aria-hidden="true"></li>
+      <li><a href="updates.html" data-keep-lang>Updates</a></li>
       <li><a href="https://api.talkbridge.io/" target="_blank" rel="noopener">Docs</a></li>
-      <li><a href="https://github.com/BlumnAI-Playground/talk-bridge#샘플" target="_blank" rel="noopener">Samples</a></li>
       <li><a href="https://discord.com/invite/xhPhgUFjew" target="_blank" rel="noopener">Discord</a></li>
       <li><a href="https://github.com/BlumnAI-Playground/talk-bridge" target="_blank" rel="noopener">GitHub</a></li>
     </ul>
+  </nav>
+
+  <!-- 홈 섹션 레일 — 화면 오른쪽 고정. 1000px 이하에선 숨기고 햄버거 메뉴 「이 페이지」 로 -->
+  <nav class="page-rail" aria-label="이 페이지" data-i18n-attr="aria-label:nav.onpage">
+    <a href="#get-started"><span class="rail-label">Get Started</span><i></i></a>
+    <a href="#autoreply"><span class="rail-label">Auto-Reply</span><i></i></a>
+    <a href="#features"><span class="rail-label">Features</span><i></i></a>
   </nav>
 
   <main id="main-content">
@@ -1088,6 +1102,17 @@
       var ham = document.querySelector('.nav-hamburger'), mob = document.querySelector('.nav-mobile');
       ham.addEventListener('click', function () { var o = mob.classList.toggle('open'); ham.setAttribute('aria-expanded', o ? 'true' : 'false'); });
       mob.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { mob.classList.remove('open'); ham.setAttribute('aria-expanded', 'false'); }); });
+      // 섹션 레일 — 지금 보고 있는 섹션 표시 (첫 화면 히어로에선 표시 없음)
+      var railLinks = document.querySelectorAll('.page-rail a');
+      if (railLinks.length && 'IntersectionObserver' in window) {
+        var railOn = function (id) { railLinks.forEach(function (a) { a.classList.toggle('active', a.getAttribute('href') === '#' + id); }); };
+        var rio = new IntersectionObserver(function (es) {
+          es.forEach(function (e) { if (e.isIntersecting) railOn(e.target.id); });
+        }, { rootMargin: '-45% 0px -50% 0px' });
+        railLinks.forEach(function (a) { var s = document.querySelector(a.getAttribute('href')); if (s) rio.observe(s); });
+        var hero = document.querySelector('.hero');
+        if (hero) new IntersectionObserver(function (es) { if (es[0].isIntersecting) railOn(''); }, { rootMargin: '-45% 0px -50% 0px' }).observe(hero);
+      }
       // 스크롤 리빌
       if ('IntersectionObserver' in window) {
         var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } }); }, { threshold: 0.08 });
@@ -1100,7 +1125,7 @@
         'meta.title': 'TalkBridge — KakaoTalk consultation chat via CLI · MCP · API',
         'meta.desc': 'A bridge that connects KakaoTalk consultation chat to your terminal, AI apps and servers. TalkBridge CLI at the center, with an MCP connector and a Developer API on the same brand key.',
         'skip': 'Skip to content',
-        'nav.search': 'Search docs',
+        'nav.onpage': 'On this page',
         'hero.pill': 'CLI · MCP · API — one brand key',
         'hero.h1': 'Customer chat for the AI era,<br> in your terminal.',
         'hero.desc': 'The bridge that wires KakaoTalk consultation chat into your terminal, AI apps and servers. TalkBridge absorbs the channel complexity — partner contracts, delivery specs, retries — and you handle just <strong>two contracts: an inbound webhook and an outbound API</strong>. At the center is a CLI built to be used with AI.',
@@ -1225,6 +1250,7 @@
         KO_ATTR.forEach(function (a) { a.el.setAttribute(a.attr, lang === 'en' && EN[a.key] != null ? EN[a.key] : a.ko); });
         document.querySelectorAll('.copy-btn').forEach(function (b) { b.setAttribute('aria-label', UI[lang].copy); });
         document.querySelectorAll('.lang-toggle button').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-lang') === lang ? 'true' : 'false'); });
+        document.querySelectorAll('a[data-keep-lang]').forEach(function (a) { a.setAttribute('href', 'updates.html?lang=' + lang); }); // 업데이트 소식으로 언어를 넘긴다
         typerSync();
         if (save) {
           try { localStorage.setItem('tb-lang', lang); } catch (e) { /* 저장 불가 환경 */ }
