@@ -10,6 +10,33 @@
  */
 window.TB_UPDATES = [
   {
+    version: 'v1.6.0',
+    date: '2026-10-30',
+    title: { ko: '권한별 Agent Key · 멀티브랜드 관리 API', en: 'Scoped Agent Keys · multi-brand Manage API' },
+    items: [
+      {
+        area: 'api',
+        title: { ko: '권한을 골라 만드는 Agent Key', en: 'Agent Keys with chosen permissions' },
+        desc: {
+          ko: '키를 만들 때 권한을 고릅니다. <b>1개 브랜드</b> 읽기·쓰기, <b>전체 브랜드</b> 읽기·쓰기(나중에 만드는 브랜드 포함), 그리고 상담 없이 연동 설정만 다루는 <b>관리 전용</b>까지 다섯 가지입니다. 조회만 하는 통합에는 읽기 키를 쓰세요.',
+          en: 'Choose the permission when you create a key: <b>one brand</b> read or write, <b>all brands</b> read or write (including brands created later), or <b>management only</b> for setup without consultation access — five in total. Use a read key for read-only integrations.'
+        },
+        code: ['BrandRead · BrandWrite', 'TenantRead · Admin', 'TenantManage'],
+        docs: [{ href: '/authentication/#권한-스코프', anchorEn: '#permission-scopes' }]
+      },
+      {
+        area: 'api',
+        title: { ko: '관리 API — 여러 브랜드의 연동을 자동화', en: 'Manage API — automate setup across brands' },
+        desc: {
+          ko: '관리 전용 키 하나로 계정의 모든 브랜드를 다룹니다. 브랜드 조회·생성, 게이트웨이 키 연결·웹훅 등록·켜기, 상담톡 켜기·끄기, <b>상담시간</b>(카카오톡 상담톡), 상담 시작 문구를 API 로 설정합니다. 센터에서 하던 연동 설정을 시스템에서 반복할 때 씁니다.',
+          en: 'One management-only key covers every brand in the account: list and create brands, connect the gateway key, register the webhook and turn it on, turn consultations on or off, set <b>consultation hours</b> (KakaoTalk), and manage the start message. Use it to repeat Center setup from your own systems.'
+        },
+        code: ['GET /api/manage/me', 'GET · POST /api/manage/brands', 'GET · POST /api/manage/channels/{channelId}/schedule'],
+        docs: [{ href: '/api/manage/' }, { href: '/api/manage/#schedule', anchorEn: '#schedule', label: { ko: '상담시간', en: 'Hours' } }]
+      }
+    ]
+  },
+  {
     version: 'v1.5.4',
     date: '2026-10-26',
     title: { ko: '고객 메시지 읽음 처리 · 상담 시작 문구', en: 'Read receipts · consultation start message' },
