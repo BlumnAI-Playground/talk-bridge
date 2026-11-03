@@ -304,6 +304,8 @@
     .about-line .prompt { color: var(--teal); user-select: none; }
     .about-line.cmd-line:not(:first-child) { margin-top: 14px; }
     .about-line.slogan { color: var(--paper); font-weight: 500; font-size: 1.25rem; }
+    .dev-env-cta { margin-top: 40px; }
+    .dev-env-cta p { color: var(--mute-light); font-size: .95rem; margin-bottom: 16px; }
     .powered-by { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 56px; }
     .powered-label { color: var(--paper); font-size: .85rem; font-weight: 500; letter-spacing: .04em; }
     .powered-tech { color: #4f9dff; font-size: 1.6rem; font-weight: 800; letter-spacing: -.01em; }
@@ -1045,6 +1047,10 @@
             <span data-i18n="cm.support">기술 문의</span>
           </a>
         </div>
+        <div class="dev-env-cta">
+          <p data-i18n="cm.dev.p">운영과 분리된 환경에서 연동을 미리 준비해야 하나요?</p>
+          <a href="dev-environment.html" class="btn btn-ghost" data-keep-lang data-i18n="cm.dev">개발환경 알아보기 &rarr;</a>
+        </div>
         <div class="powered-by">
           <span class="powered-label">Powered by</span>
           <div class="powered-techs">
@@ -1223,6 +1229,8 @@
         'about.5': 'we prepare for yours.',
         'cm.tag': 'Latest sample tag',
         'cm.support': 'Tech support',
+        'cm.dev.p': 'Need to prepare your integration apart from production?',
+        'cm.dev': 'Explore the dev environment &rarr;',
         'footer.guide': 'Partner integration guide · samples'
       };
       var UI = { ko: { copy: '복사', copyPrompt: '복사:' }, en: { copy: 'Copy', copyPrompt: 'Copy:' } };
@@ -1238,6 +1246,10 @@
       var t = function (k) { if (lang === 'en' && EN[k] == null) console.warn('[i18n] EN 없음:', k); return lang === 'en' && EN[k] != null ? EN[k] : KO[k]; };
       var aboutText = function (line) { var k = line.getAttribute('data-i18n'); var s = document.createElement('div'); s.innerHTML = t(k); return s.textContent; };
       var typerSync = function () {}; // 타이핑 터미널이 정의되면 교체
+      // 다른 페이지(업데이트 소식 · 개발환경 안내)로 언어를 넘긴다
+      function keepLangLinks() {
+        document.querySelectorAll('a[data-keep-lang]').forEach(function (a) { a.setAttribute('href', a.getAttribute('href').replace(/\?lang=(ko|en)/, '') + '?lang=' + lang); });
+      }
       function setLang(next, save) {
         lang = next === 'en' ? 'en' : 'ko';
         document.documentElement.lang = lang;
@@ -1250,7 +1262,7 @@
         KO_ATTR.forEach(function (a) { a.el.setAttribute(a.attr, lang === 'en' && EN[a.key] != null ? EN[a.key] : a.ko); });
         document.querySelectorAll('.copy-btn').forEach(function (b) { b.setAttribute('aria-label', UI[lang].copy); });
         document.querySelectorAll('.lang-toggle button').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-lang') === lang ? 'true' : 'false'); });
-        document.querySelectorAll('a[data-keep-lang]').forEach(function (a) { a.setAttribute('href', 'updates.html?lang=' + lang); }); // 업데이트 소식으로 언어를 넘긴다
+        keepLangLinks();
         typerSync();
         if (save) {
           try { localStorage.setItem('tb-lang', lang); } catch (e) { /* 저장 불가 환경 */ }
@@ -1316,7 +1328,7 @@
       var saved = null; try { saved = localStorage.getItem('tb-lang'); } catch (e) { /* 무시 */ }
       var q = (location.search.match(/[?&]lang=(ko|en)\b/) || [])[1];
       var initial = q || saved || ((navigator.language || 'ko').toLowerCase().indexOf('ko') === 0 ? 'ko' : 'en');
-      if (initial !== 'ko') setLang(initial, false);
+      if (initial !== 'ko') setLang(initial, false); else keepLangLinks();
       // 영어로 열렸는데 주소에 lang 이 없으면(저장값·브라우저 언어로 결정) 주소에도 남긴다 — 그대로 복사해 공유해도 영어로 열린다
       if (lang === 'en' && !q) syncUrl();
       // 라이브 스탯 — npm CLI 버전, 샘플 최신 태그 (실패하면 그냥 숨김)
