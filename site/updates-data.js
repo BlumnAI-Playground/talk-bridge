@@ -10,6 +10,33 @@
  */
 window.TB_UPDATES = [
   {
+    version: 'v1.7.4',
+    date: '2026-11-12',
+    title: { ko: '상담 종료 사유 — 고객 종료와 30일 만료를 구분', en: 'Session end reason — customer ended vs. 30-day expiry' },
+    items: [
+      {
+        area: 'webhook',
+        title: { ko: '상담 종료 신호에 종료 사유', en: 'End reason on the session-end signal' },
+        desc: {
+          ko: '상담이 끝나면 <b>왜 끝났는지</b>가 함께 옵니다. 고객이 「!종료」를 입력하거나 채팅방을 나간 경우, 마지막 메시지 후 30일이 지난 경우, 챗봇 전환·상담원 종료를 <code>by</code>·<code>reason</code> 으로 구분합니다. 지금까지는 모두 같은 <code>expired</code> 로 와서 “상담이 하루 만에 만료됐다”처럼 보일 수 있었습니다. 고객이 끝낸 상담은 바로 종료돼 이후 발신이 <code>-502</code> 로 거절되니, 고객이 다시 문의할 때까지 기다리세요. Discord·Slack 종료 카드도 사유별 문구로 표시됩니다.',
+          en: 'When a consultation ends you now learn <b>why</b>. <code>by</code> and <code>reason</code> tell apart a customer typing “!종료” or leaving the chat room, 30 days passing since their last message, a switch to the chatbot, and an agent ending it. Until now all of these arrived as the same <code>expired</code>, which could look like “the session expired within a day”. A consultation the customer ends closes immediately and later sends are rejected with <code>-502</code> — wait until the customer writes again. Discord and Slack end cards now show the reason too.'
+        },
+        code: ['by: customer · system · bot · agent', 'reason: customer_end · customer_left · timeout_30d · …', 'expiredType: EU · EC · AE · …'],
+        docs: [{ href: '/webhooks/payload/#session-end', anchorEn: '#session-end' }]
+      },
+      {
+        area: 'webhook',
+        title: { ko: '필드는 추가만 — 모르는 필드는 무시하세요', en: 'Fields are only added — ignore unknown ones' },
+        desc: {
+          ko: '기존 필드는 그대로이고 값만 늘었습니다. 사유를 확인하지 못하면 지금처럼 사유 없이 오므로 <b>필드가 없을 수 있다</b>고 보고 처리하세요. 웹훅 본문을 엄격한 스키마로 검증한다면 모르는 필드를 허용하도록 바꿔 주세요. 상담 건수에는 영향이 없습니다.',
+          en: 'Existing fields are unchanged; values were only added. If the reason cannot be determined the signal arrives without it as before, so treat the fields as <b>optional</b>. If you validate webhook bodies against a strict schema, allow unknown fields. Consultation usage is not affected.'
+        },
+        code: ['kind: "expired"'],
+        docs: [{ href: '/webhooks/payload/' }]
+      }
+    ]
+  },
+  {
     version: 'v1.6.0',
     date: '2026-10-30',
     title: { ko: '권한별 Agent Key · 멀티브랜드 관리 API', en: 'Scoped Agent Keys · multi-brand Manage API' },
