@@ -367,7 +367,7 @@
       <p data-i18n="steps.p">별도의 제약 조건 없이 메일로 접수하며, 내용을 검토해 승인합니다.</p>
       <ol class="steps">
         <li><h3 data-i18n="s1.h">개발환경에 가입</h3><p data-i18n="s1.p"><a href="https://talkbridge-dev.com/" target="_blank" rel="noopener">talkbridge-dev.com</a> 에 가입합니다. 이때 사용한 계정을 신청 메일에 적어야 합니다.</p></li>
-        <li><h3 data-i18n="s2.h">메일로 신청</h3><p data-i18n="s2.p">가입 계정(필수), 개발환경이 필요한 사유, 도입 준비 중인 플랜을 적어 보냅니다.</p></li>
+        <li><h3 data-i18n="s2.h">메일로 신청</h3><p data-i18n="s2.p">가입 계정(필수), 톡브릿지의 기본 상담 기능 외에 연동하려는 AI 기능(예: 자동 응대, 상담 AI 요약), 도입 준비 중인 플랜을 적어 보냅니다.</p></li>
         <li><h3 data-i18n="s3.h">검토 후 승인</h3><p data-i18n="s3.p">신청 내용을 검토해 해당 계정을 승인 상태로 변경합니다.</p></li>
         <li><h3 data-i18n="s4.h">운영과 분리된 환경에서 개발</h3><p data-i18n="s4.p">카카오 개발자용 채널을 연결해 기능 검토와 개발자 모드 개발을 진행합니다.</p></li>
       </ol>
@@ -442,8 +442,8 @@
       var MAIL_TO = 'help@talkbridge.io';
       var MAIL_SUBJECT = '[톡브릿지] 개발환경 신청 - 고객사명';
       var MAIL_BODY = {
-        ko: '고객사명:\n개발환경 가입 계정(필수):\n개발환경이 필요한 사유:\n도입 준비 중인 플랜(예: Pro 300건):\n',
-        en: 'Company name:\nDev environment account (required):\nWhy you need the dev environment:\nPlan you are preparing to adopt (e.g. Pro 300):\n'
+        ko: '고객사명:\n개발환경 가입 계정(필수):\n기본 상담 기능 외에 연동하려는 AI 기능(예: 자동 응대, 상담 AI 요약 등):\n도입 준비 중인 플랜(예: Pro 300건):\n',
+        en: 'Company name:\nDev environment account (required):\nAI features you plan to connect beyond basic consultation (e.g. auto-response, AI chat summary):\nPlan you are preparing to adopt (e.g. Pro 300):\n'
       };
       // 한국어는 HTML 원문이 기준. data-i18n 요소를 EN 이면 아래 사전으로 바꾼다 (index.html 과 같은 방식)
       var EN = {
@@ -537,7 +537,7 @@
         's1.h': 'Sign up for the dev environment',
         's1.p': 'Sign up at <a href="https://talkbridge-dev.com/" target="_blank" rel="noopener">talkbridge-dev.com</a>. You need to include this account in your request email.',
         's2.h': 'Request by email',
-        's2.p': 'Send your account (required), why you need the dev environment, and the plan you are preparing to adopt.',
+        's2.p': 'Send your account (required), the AI features you plan to connect beyond TalkBridge\'s basic consultation features (e.g. auto-response, AI chat summary), and the plan you are preparing to adopt.',
         's3.h': 'Review and approval',
         's3.p': 'We review the request and set that account to approved.',
         's4.h': 'Build apart from production',
