@@ -312,10 +312,14 @@
         <p data-i18n="kakao.key.p">비즈니스 채널이 <b>최소 1개</b> 있어야 개발자용 채널을 만들 수 있습니다. <b>심사를 통과하지 못하면 개발자용 채널을 운영할 수 없습니다.</b> 심사는 <a href="https://api.talkbridge.io/kakao-channel/" target="_blank" rel="noopener">카카오 채널 준비</a> 문서를 참고해 주세요.</p>
       </div>
       <ol class="steps">
-        <li><h3 data-i18n="k1.h">개발자용 채널 만들기</h3><p data-i18n="k1.p"><a href="https://center-pf.kakao.com" target="_blank" rel="noopener">카카오톡 채널 파트너센터</a>에서 <b>[개발자용 채널 만들기]</b>를 누릅니다. 비즈니스 인증 채널이 있으면 추가 인증 없이 만들 수 있습니다.</p></li>
+        <li><h3 data-i18n="k1.h">개발자용 채널 만들기</h3><p data-i18n="k1.p">카카오 비즈니스 파트너센터의 <a href="https://business.kakao.com/profiles" target="_blank" rel="noopener">내 비즈니스 전체 보기</a>로 이동합니다. 개발자용 채널을 아직 만들지 않았다면 <b>[개발자 채널]</b> 버튼이 나타나며, 이 버튼으로 카카오 상담톡에 쓸 개발자용 채널을 추가할 수 있습니다. 운영 중인 비즈니스 채널 1개당 개발자용 채널은 <b>1개만</b> 만들 수 있습니다.</p></li>
         <li><h3 data-i18n="k2.h">채널 정보 확인</h3><p data-i18n="k2.p">연결에 필요한 채널 이름, 검색용 아이디(@ 뒤 값), 채널 관리자 휴대폰 번호를 확인합니다.</p></li>
-        <li><h3 data-i18n="k3.h">개발환경 센터에서 연결</h3><p data-i18n="k3.p">승인 후 <a href="https://console.talkbridge-dev.com" target="_blank" rel="noopener">개발환경 센터</a>에서 운영과 같은 순서로 진행합니다. 브랜드 만들기 → 카카오 채널 등록 → 채널 인증 → 상담 받을 곳 연결 → 상담 활성화</p></li>
+        <li><h3 data-i18n="k3.h">개발환경 센터에서 연결</h3><p data-i18n="k3.p">승인 후 1단계에서 만든 개발자용 채널을 <a href="https://console.talkbridge-dev.com" target="_blank" rel="noopener">개발환경 센터</a>에 연결합니다. 운영과 같은 순서로 진행합니다. 브랜드 만들기 → 카카오 채널 등록 → 채널 인증 → 상담 받을 곳 연결 → 상담 활성화</p></li>
       </ol>
+      <div class="callout">
+        <h3 data-i18n="kakao.split.h">개발환경에는 개발자용 채널만 연결해 주세요</h3>
+        <p data-i18n="kakao.split.p">운영 채널을 톡브릿지 개발환경에 연결해 이용하면 <b>카카오의 채널 제재</b>를 받을 수 있으니 유의해 주세요. 또 카카오 상담톡은 한 채널을 <b>한 곳에서만</b> 쓸 수 있어, 개발환경에 연결한 채널은 운영 환경에서 「다른 상담 서비스에서 이미 상담톡을 사용하고 있다」는 안내와 함께 연결되지 않습니다. 개발자용 채널은 <a href="https://business.kakao.com/profiles" target="_blank" rel="noopener">카카오 비즈니스 파트너센터 › 내 비즈니스 전체 보기</a>의 <b>[개발자 채널]</b> 버튼으로 만들며, 운영 중인 비즈니스 채널 1개당 <b>1개만</b> 만들 수 있습니다.</p>
+      </div>
       <h3 data-i18n="env.h">개발환경 접속 정보</h3>
       <div class="table-box env-table">
         <table>
@@ -341,16 +345,17 @@
       <p class="fine" data-i18n="mcp.fine">연결되면 AI 에게 "내 파트너 정보랑 관리 중인 브랜드 알려줘"라고 물어 확인합니다. 자세한 방법은 <a href="https://api.talkbridge-dev.com/mcp/connect/" target="_blank" rel="noopener">AI 앱 연결 문서</a>를 참고해 주세요.</p>
       <h3 data-i18n="faq.h">자주 묻는 질문</h3>
       <div class="faq">
-        <details><summary data-i18n="q1.q">비즈니스 채널 없이 개발자용 채널을 먼저 만들 수 있나요?</summary><p data-i18n="q1.a">아니요. 심사를 통과한 비즈니스 채널이 없으면 <b>[개발자용 채널 만들기]</b> 버튼이 나타나지 않습니다.</p></details>
+        <details><summary data-i18n="q1.q">비즈니스 채널 없이 개발자용 채널을 먼저 만들 수 있나요?</summary><p data-i18n="q1.a">아니요. 심사를 통과한 비즈니스 채널이 없으면 <b>[개발자 채널]</b> 버튼이 나타나지 않습니다.</p></details>
         <details><summary data-i18n="q2.q">비즈니스 채널 심사를 통과하지 못하면 어떻게 되나요?</summary><p data-i18n="q2.a">개발자용 채널을 만들 수 없어 개발환경에 연결할 채널이 없습니다. 심사부터 통과한 뒤 진행해 주세요.</p></details>
         <details><summary data-i18n="q3.q">개발자용 채널도 따로 심사를 받아야 하나요?</summary><p data-i18n="q3.a">비즈니스 인증을 받은 채널이 있으면 추가 인증 없이 만들 수 있습니다.</p></details>
         <details><summary data-i18n="q4.q">일반 채널을 개발환경에 연결할 수 있나요?</summary><p data-i18n="q4.a">아니요. 개발환경에는 비즈니스 개발자용 채널만 연결할 수 있습니다. 카카오 도움말의 일반 채널 연결 방법은 챗봇 관리자센터에 해당하는 내용입니다.</p></details>
         <details><summary data-i18n="q5.q">개발환경에서 발급한 키를 운영에서 쓸 수 있나요?</summary><p data-i18n="q5.a">아니요. 키는 발급된 환경에 묶여 있어 개발환경 키를 실환경에서 쓰면 <code>401</code> 이 납니다. 그 반대도 같습니다.</p></details>
         <details><summary data-i18n="q6.q">운영으로 넘어갈 때 무엇을 바꾸나요?</summary><p data-i18n="q6.a">실환경 센터에서 운영 채널을 연결하고 키를 새로 발급받은 뒤, API 주소, CLI, MCP 커넥터를 실환경용으로 바꿉니다.</p></details>
+        <details><summary data-i18n="q7.q">개발환경에 연결한 채널을 운영 환경에도 연결할 수 있나요?</summary><p data-i18n="q7.a">아니요. 한 채널의 상담톡은 한 곳에서만 쓸 수 있습니다. 그 채널을 운영 환경에서 쓰려면 먼저 <a href="https://console.talkbridge-dev.com" target="_blank" rel="noopener">개발환경 센터</a>의 브랜드 화면에서 <b>[채널 삭제]</b>를 눌러 개발환경 연결을 끊은 뒤, 운영 센터에서 인증번호를 다시 받아 인증해 주세요. 삭제한 뒤에도 같은 안내가 나오면 문의해 주세요.</p></details>
       </div>
       <h3 data-i18n="links.h">참고 링크</h3>
       <ul class="links">
-        <li><a href="https://center-pf.kakao.com" target="_blank" rel="noopener"><b data-i18n="l1.t">카카오톡 채널 파트너센터 &rarr;</b><span data-i18n="l1.d">개발자용 채널을 만드는 곳</span></a></li>
+        <li><a href="https://business.kakao.com/profiles" target="_blank" rel="noopener"><b data-i18n="l1.t">카카오 비즈니스 파트너센터 &rarr;</b><span data-i18n="l1.d">내 비즈니스 전체 보기 — 개발자용 채널을 만드는 곳</span></a></li>
         <li><a href="https://cs.kakao.com/helps_html/1073196497?locale=ko" target="_blank" rel="noopener"><b data-i18n="l2.t">개발채널 생성 방법 &rarr;</b><span data-i18n="l2.d">개발자용 채널 버튼 노출 조건 (챗봇 관리자센터 기준 도움말)</span></a></li>
         <li><a href="https://developers.kakao.com/docs/ko/kakaotalk-channel/common" target="_blank" rel="noopener"><b data-i18n="l3.t">카카오톡 채널 이해하기 &rarr;</b><span data-i18n="l3.d">개발자용 채널 공식 설명 (Kakao Developers)</span></a></li>
         <li><a href="https://api.talkbridge.io/kakao-channel/" target="_blank" rel="noopener"><b data-i18n="l4.t">카카오 채널 준비 &rarr;</b><span data-i18n="l4.d">비즈니스 채널 심사 안내 (TalkBridge 문서)</span></a></li>
@@ -487,11 +492,13 @@
         'kakao.key.h': 'You need a business channel that passed review first',
         'kakao.key.p': 'You need <b>at least one</b> business channel to create a developer channel. <b>Without passing the review, you cannot run a developer channel.</b> For the review, see <a href="https://api.talkbridge.io/en/kakao-channel/" target="_blank" rel="noopener">Kakao channel prerequisites</a>.',
         'k1.h': 'Create a developer channel',
-        'k1.p': 'In the <a href="https://center-pf.kakao.com" target="_blank" rel="noopener">Kakao Talk Channel Partner Center</a>, click <b>[개발자용 채널 만들기]</b> (Create developer channel). With a verified business channel, no additional verification is needed.',
+        'k1.p': 'Go to <a href="https://business.kakao.com/profiles" target="_blank" rel="noopener">My Business (내 비즈니스 전체 보기)</a> in the Kakao Business Partner Center. If you have not created a developer channel yet, a <b>[개발자 채널]</b> (Developer channel) button appears; use it to add a developer channel for Kakao consultation chat. You can create <b>only one</b> developer channel per business channel you operate.',
         'k2.h': 'Check your channel details',
         'k2.p': 'Have the channel name, search ID (the value after @), and the channel admin\'s mobile number ready.',
         'k3.h': 'Connect in the dev center',
-        'k3.p': 'After approval, follow the same order as production in the <a href="https://console.talkbridge-dev.com" target="_blank" rel="noopener">dev center</a>: create a brand → register the Kakao channel → verify the channel → connect where you receive chats → activate.',
+        'k3.p': 'After approval, connect the developer channel you created in step 1 to the <a href="https://console.talkbridge-dev.com" target="_blank" rel="noopener">dev center</a>, following the same order as production: create a brand → register the Kakao channel → verify the channel → connect where you receive chats → activate.',
+        'kakao.split.h': 'Connect only developer channels to the dev environment',
+        'kakao.split.p': 'If you connect a production channel to the TalkBridge dev environment and use it, <b>Kakao may restrict the channel</b>, so please be careful. Also, a Kakao channel can use consultation chat in <b>only one place</b>: a channel connected in the dev environment cannot be connected in production, and you will see a message that another consultation service is already using it. Create a developer channel with the <b>[개발자 채널]</b> (Developer channel) button in <a href="https://business.kakao.com/profiles" target="_blank" rel="noopener">Kakao Business Partner Center › My Business</a>. You can create <b>only one</b> per business channel you operate.',
         'env.h': 'Dev environment hosts',
         'env.center': 'Center',
         'env.fine': 'Keys are issued separately for each environment.',
@@ -503,7 +510,7 @@
         'mcp.fine': 'Once connected, ask the AI "Show my partner info and the brands I manage" to confirm. For details, see <a href="https://api.talkbridge-dev.com/en/mcp/connect/" target="_blank" rel="noopener">Connect AI Apps</a>.',
         'faq.h': 'Frequently asked questions',
         'q1.q': 'Can I create a developer channel without a business channel?',
-        'q1.a': 'No. Without a business channel that passed review, the <b>[개발자용 채널 만들기]</b> button does not appear.',
+        'q1.a': 'No. Without a business channel that passed review, the <b>[개발자 채널]</b> (Developer channel) button does not appear.',
         'q2.q': 'What if my channel does not pass the business channel review?',
         'q2.a': 'You cannot create a developer channel, so you have no channel to connect to the dev environment. Please pass the review first.',
         'q3.q': 'Does the developer channel need its own review?',
@@ -514,9 +521,11 @@
         'q5.a': 'No. Keys are tied to the environment that issued them, so a dev key returns <code>401</code> in production, and the reverse is also true.',
         'q6.q': 'What changes when I move to production?',
         'q6.a': 'Connect your live channel in the production center, issue a new key, then switch your API host, CLI, or MCP connector to production.',
+        'q7.q': 'Can I connect a channel to production that is already connected in the dev environment?',
+        'q7.a': 'No. A channel can use consultation chat in only one place. To use it in production, first click <b>[채널 삭제]</b> (Delete channel) on the brand screen of the <a href="https://console.talkbridge-dev.com" target="_blank" rel="noopener">dev center</a> to disconnect it from the dev environment, then request a new verification code in the production center and verify again. If you still see the same message after deleting it, please contact us.',
         'links.h': 'References',
-        'l1.t': 'Kakao Talk Channel Partner Center &rarr;',
-        'l1.d': 'Where you create a developer channel',
+        'l1.t': 'Kakao Business Partner Center &rarr;',
+        'l1.d': 'My Business — where you create a developer channel',
         'l2.t': 'How to create a development channel &rarr;',
         'l2.d': 'When the developer channel button appears (chatbot admin center article, Korean)',
         'l3.t': 'Understanding Kakao Talk channels &rarr;',
